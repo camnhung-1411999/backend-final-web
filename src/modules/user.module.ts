@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from '../controllers/user.controller';
 import { UserService } from '../services/user.service';
 import { User, userSchema } from '../models/user.model';
+import { Auth, authSchema } from '../models/auth.model';
 import * as bcrypt from 'bcrypt';
 
 @Module({
@@ -30,7 +31,13 @@ import * as bcrypt from 'bcrypt';
           });
         return schema;
       },
-    }])
+    },
+    {
+      name: Auth.name,
+      useFactory: () => {
+        return authSchema;
+      }
+    }]),
   ],
   controllers: [UserController],
   providers: [UserService],

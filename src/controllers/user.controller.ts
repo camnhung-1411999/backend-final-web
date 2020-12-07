@@ -17,4 +17,9 @@ export class UserController {
   createUser(@Body() input: User): Promise<User> {
     return this.appService.postUsers(input)
   }
+
+  @Get('/login')
+  login(@Body() input: any): Promise<any> {
+;    return this.appService.login(input);
+  }
 }
