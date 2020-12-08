@@ -23,7 +23,7 @@ export class UserController {
     return this.appService.signup(input);
   }
 
-  @Get('/login')
+  @Post('/login')
   login(@Body() input: any): Promise<any> {
 ;    return this.appService.login(input);
   }
