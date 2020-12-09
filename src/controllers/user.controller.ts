@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
 import { ApiTags } from '@nestjs/swagger';
@@ -13,18 +13,34 @@ export class UserController {
     return this.appService.getUsers();
   }
 
-  @Post()
-  createUser(@Body() input: User): Promise<User> {
-    return this.appService.postUsers(input)
-  }
-
-  @Post('/signup')
+  @Post('/')
   signup(@Body() input: User): Promise<User> {
-    return this.appService.signup(input);
+    return this.appService.postUsers(input);
   }
 
   @Post('/login')
   login(@Body() input: any): Promise<any> {
     return this.appService.login(input);
+  }
+
+  @Post('/social')
+  loginSocial(@Body() input: any): Promise<any> {
+    return this.appService
+      .postUsers(input)
+      .then(async (user) => {
+        this.appService.login(user).then((iuser) => {
+          return iuser;
+        });
+      })
+      .catch(async (err) => {
+        this.appService.login(input).then((iuser) => {
+          return iuser;
+        });
+      });
+  }
+  
+  @Put('/')
+  update(@Body() input: any): Promise<any> {
+    return this.appService.update(input);
   }
 }

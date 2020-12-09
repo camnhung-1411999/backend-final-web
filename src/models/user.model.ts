@@ -19,6 +19,14 @@ export type IUser = User & Document;
     @ApiProperty()
     name: string;
 
+    @Prop()
+    @ApiProperty()
+    role: string;
+
+    @Prop()
+    @ApiProperty()
+    status: boolean;
+
     comparePassword: ComparePasswordFunction;
   }
 
