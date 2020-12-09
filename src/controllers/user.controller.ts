@@ -13,7 +13,7 @@ export class UserController {
     return this.appService.getUsers();
   }
 
-  @Post('/')
+  @Post('/signup')
   signup(@Body() input: User): Promise<User> {
     return this.appService.postUsers(input);
   }
