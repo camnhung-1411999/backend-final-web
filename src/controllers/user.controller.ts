@@ -20,6 +20,6 @@ export class UserController {
 
   @Get('/login')
   login(@Body() input: any): Promise<any> {
-;    return this.appService.login(input);
+    return this.appService.login(input);
   }
 }

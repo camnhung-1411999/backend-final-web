@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser, User } from '../models/user.model';
 import { IAuth, Auth} from '../models/auth.model';
@@ -30,21 +30,19 @@ export class UserService {
       user: input.user,
     });
     if(!find) {
-      const error = {
-        name: 'ERROR',
-        message: 'USER_NOT_FOUND'
-      }
-      throw error;
+      throw new HttpException({
+        status: 404,
+        error: 'USER_NOT_FOUND',
+      }, 404);
     }
     let token: any;
     if (input.password) {
       const isMatch: any = await find.comparePassword(input.password)
-      console.log(isMatch)
       if (!isMatch) {
-        const err: Error = new Error();
-        err.message = "NOT_MATCH";
-        err.name = "Error";
-        throw err;
+        throw new HttpException({
+          status: 422,
+          error: 'PASSWORD_NOT_MATCH',
+        }, 422);
       }
     }
     // Create Token
