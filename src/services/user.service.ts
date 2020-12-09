@@ -4,6 +4,7 @@ import { IUser, User } from '../models/user.model';
 import { IAuth, Auth} from '../models/auth.model';
 import { Model } from 'mongoose';
 import authUtils from '../utils/auth';
+import { filter } from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -126,5 +127,20 @@ export class UserService {
     await iuser.save();
 
     return iuser;
+  }
+
+  async getNameOnlineUsers()
+  { 
+    const users = await this.userModel.find();
+    let usersOnline = users.filter((user) => user.status  && user.role === 'user').map((user) => user.name);
+    return usersOnline;
+  }
+
+  async getAllUsers()
+  { 
+    const users = await this.userModel.find();
+    const listUser = users.filter((user) => user.role === 'user');
+
+    return listUser;
   }
 }

@@ -12,6 +12,16 @@ export class UserController {
   getUsers(): any {
     return this.appService.getUsers();
   }
+  
+  @Get('/list')
+  getAllUsers(): any {
+    return this.appService.getAllUsers();
+  }
+
+  @Get('/online')
+  getOnlineUsers(): any {
+    return this.appService.getNameOnlineUsers();
+  }
 
   @Post('/')
   signup(@Body() input: User): Promise<User> {
@@ -43,4 +53,6 @@ export class UserController {
   update(@Body() input: any): Promise<any> {
     return this.appService.update(input);
   }
+
+
 }
