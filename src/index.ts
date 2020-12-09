@@ -6,7 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const logger = new Logger();
   const app = await NestFactory.create(AppModule);
-
+  app.enableCors();
   const options = new DocumentBuilder()
     .setTitle('Caro game')
     .setDescription('The game API description')

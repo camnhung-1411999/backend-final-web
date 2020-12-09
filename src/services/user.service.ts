@@ -25,6 +25,28 @@ export class UserService {
     return output;
   }
 
+  async signup(input: User) {
+    await this.userModel.findOne({
+      user: input.user,
+    }).then((user) => {
+      if (user) {
+        const err: Error = new Error();
+        err.message = 'USER_EXIST';
+        err.name = 'Error';
+        throw err;
+      }
+    });
+    
+    const createdUser = new this.userModel({
+      user: input.user,
+      password: input.password,
+      name: input.name,
+    });
+    await createdUser.save();
+    return createdUser;
+  }
+
+
   async login(input: any) {
     const find = await this.userModel.findOne({
       user: input.user,
