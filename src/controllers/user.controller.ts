@@ -23,7 +23,7 @@ export class UserController {
     return this.appService.getNameOnlineUsers();
   }
 
-  @Post('/')
+  @Post('/signup')
   signup(@Body() input: User): Promise<User> {
     return this.appService.postUsers(input);
   }
