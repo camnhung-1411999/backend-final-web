@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser, User } from '../models/user.model';
 import { IAuth, Auth} from '../models/auth.model';
 import { Model } from 'mongoose';
 import authUtils from '../utils/auth';
+import { filter } from 'lodash';
 
 @Injectable()
 export class UserService {
@@ -16,24 +17,17 @@ export class UserService {
 
   ){}
   async getUsers() {
-    const output = await this.userModel.find();
-    return output;
   }
 
   async postUsers(input: User) {
-    const output = await this.userModel.create(input);
-    return output;
-  }
-
-  async signup(input: User) {
     await this.userModel.findOne({
       user: input.user,
     }).then((user) => {
       if (user) {
-        const err: Error = new Error();
-        err.message = 'USER_EXIST';
-        err.name = 'Error';
-        throw err;
+        throw new HttpException({
+          status: 409,
+          error: 'USER_EXIST',
+        }, 409);
       }
     });
     
@@ -41,34 +35,35 @@ export class UserService {
       user: input.user,
       password: input.password,
       name: input.name,
+      role: input.role,
+      status: false,
     });
     await createdUser.save();
     return createdUser;
   }
-
 
   async login(input: any) {
     const find = await this.userModel.findOne({
       user: input.user,
     });
     if(!find) {
-      const error = {
-        name: 'ERROR',
-        message: 'USER_NOT_FOUND'
-      }
-      throw error;
+      throw new HttpException({
+        status: 404,
+        error: 'USER_NOT_FOUND',
+      }, 404);
     }
     let token: any;
     if (input.password) {
       const isMatch: any = await find.comparePassword(input.password)
-      console.log(isMatch)
       if (!isMatch) {
-        const err: Error = new Error();
-        err.message = "NOT_MATCH";
-        err.name = "Error";
-        throw err;
+        throw new HttpException({
+          status: 422,
+          error: 'PASSWORD_NOT_MATCH',
+        }, 422);
       }
     }
+    find.status = true;
+    await find.save();
     // Create Token
     const newAccessToken = await authUtils.generateAccessToken(input);
     const newRefreshToken = await authUtils.generateRefreshToken(input);
@@ -100,5 +95,52 @@ export class UserService {
         };
       }
     );
+  }
+
+  async update(input: any) {
+    const iuser = await this.userModel.findOne({
+      user: input.user,
+    });
+
+    if(!iuser) {
+      throw new HttpException({
+        status: 404,
+        error: 'USER_NOT_FOUND',
+      }, 404);
+    }
+
+    iuser.status = input.status ? input.status : iuser.status;
+    iuser.role = input.role ? input.role : iuser.role;
+    iuser.name = input.name ? input.name : iuser.name;
+
+    if (input.password) {
+      const isMatch: any = await iuser.comparePassword(input.oldPassword)
+      if (!isMatch) {
+        throw new HttpException({
+          status: 422,
+          error: 'PASSWORD_NOT_MATCH',
+        }, 422);
+      }
+      iuser.password = input.password;
+    }
+
+    await iuser.save();
+
+    return iuser;
+  }
+
+  async getNameOnlineUsers()
+  { 
+    const users = await this.userModel.find();
+    let usersOnline = users.filter((user) => user.status  && user.role === 'user').map((user) => user.name);
+    return usersOnline;
+  }
+
+  async getAllUsers()
+  { 
+    const users = await this.userModel.find();
+    const listUser = users.filter((user) => user.role === 'user');
+
+    return listUser;
   }
 }
