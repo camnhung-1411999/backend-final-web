@@ -20,16 +20,15 @@ export class UserService {
   }
 
   async postUsers(input: User) {
-    await this.userModel.findOne({
+    const user = await this.userModel.findOne({
       user: input.user,
-    }).then((user) => {
-      if (user) {
-        throw new HttpException({
-          status: 409,
-          error: 'USER_EXIST',
-        }, 409);
-      }
     });
+    if (user) {
+      throw new HttpException({
+        status: 409,
+        error: 'USER_EXIST',
+      }, 409);
+    }
     
     const createdUser = new this.userModel({
       user: input.user,
@@ -39,12 +38,13 @@ export class UserService {
       status: false,
     });
     await createdUser.save();
+
     return createdUser;
   }
 
   async login(input: any) {
     const find = await this.userModel.findOne({
-      user: input.user,
+      user: input.data.user,
     });
     if(!find) {
       throw new HttpException({
@@ -53,8 +53,9 @@ export class UserService {
       }, 404);
     }
     let token: any;
-    if (input.password) {
-      const isMatch: any = await find.comparePassword(input.password)
+
+    if (input.data.password) {
+      const isMatch: any = await find.comparePassword(input.data.password)
       if (!isMatch) {
         throw new HttpException({
           status: 422,
@@ -65,8 +66,8 @@ export class UserService {
     find.status = true;
     await find.save();
     // Create Token
-    const newAccessToken = await authUtils.generateAccessToken(input);
-    const newRefreshToken = await authUtils.generateRefreshToken(input);
+    const newAccessToken = await authUtils.generateAccessToken(input.data);
+    const newRefreshToken = await authUtils.generateRefreshToken(input.data);
 
     const authToken = {
       accessToken: newAccessToken,
