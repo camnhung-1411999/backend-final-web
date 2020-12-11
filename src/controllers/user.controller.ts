@@ -34,16 +34,18 @@ export class UserController {
   }
 
   @Post('/social')
-  loginSocial(@Body() input: any): Promise<any> {
+  loginSocial(@Body() input: User): Promise<any> {
     return this.appService
       .postUsers(input)
-      .then(async (user) => {
-        this.appService.login(user).then((iuser) => {
+      .then(async (data) => {
+        const user = {data:{user: data.user, password: data.password}}
+        await this.appService.login(user).then((iuser) => {
           return iuser;
         });
       })
       .catch(async (err) => {
-        this.appService.login(input).then((iuser) => {
+        const user = { data:{user: input.user, password: input.password}}
+        await this.appService.login(user).then((iuser) => {
           return iuser;
         });
       });
