@@ -56,15 +56,13 @@ export class UserService {
 
     if (input.password) {
       const isMatch: any = await find.comparePassword(input.password)
+
       if (!isMatch) {
         throw new HttpException({
           status: 422,
           error: 'PASSWORD_NOT_MATCH',
         }, 422);
       }
-      find.status = true;
-      await find.save();
-
       // Create Token
       const newAccessToken = await authUtils.generateAccessToken(find.user);
       const newRefreshToken = await authUtils.generateRefreshToken(find.user);
@@ -88,6 +86,9 @@ export class UserService {
             ...authToken,
           });
         }
+        find.status = true;
+        find.password = input.password;
+        await find.save();
         return {
           user: find.user,
           name: find.name,

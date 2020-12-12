@@ -43,9 +43,7 @@ const comparePassword: ComparePasswordFunction = async function (
   this: IUser,
   candidatePassword,
 ) {
-  console.log(candidatePassword, this.password)
   const result = await bcrypt.compare(candidatePassword, this.password);
-  console.log(result);
   return result;
 };
 

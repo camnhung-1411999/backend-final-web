@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino-logger';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
 async function bootstrap() {
   const logger = new Logger();
   const app = await NestFactory.create(AppModule);
