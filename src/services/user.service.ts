@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser, User } from '../models/user.model';
-import { IAuth, Auth} from '../models/auth.model';
+import { IAuth, Auth } from '../models/auth.model';
 import { Model } from 'mongoose';
 import authUtils from '../utils/auth';
 import { filter } from 'lodash';
@@ -9,13 +9,13 @@ import { filter } from 'lodash';
 @Injectable()
 export class UserService {
   constructor(
-  @InjectModel(User.name)
-  private readonly userModel: Model<IUser>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<IUser>,
 
-  @InjectModel(Auth.name)
-  private readonly authModel: Model<IAuth>
+    @InjectModel(Auth.name)
+    private readonly authModel: Model<IAuth>
 
-  ){}
+  ) { }
   async getUsers() {
   }
 
@@ -29,7 +29,7 @@ export class UserService {
         error: 'USER_EXIST',
       }, 409);
     }
-    
+
     const createdUser = new this.userModel({
       user: input.user,
       password: input.password,
@@ -44,9 +44,9 @@ export class UserService {
 
   async login(input: any) {
     const find = await this.userModel.findOne({
-      user: input.data.user,
+      user: input.user,
     });
-    if(!find) {
+    if (!find) {
       throw new HttpException({
         status: 404,
         error: 'USER_NOT_FOUND',
@@ -54,29 +54,29 @@ export class UserService {
     }
     let token: any;
 
-    if (input.data.password) {
-      const isMatch: any = await find.comparePassword(input.data.password)
+    if (input.password) {
+      const isMatch: any = await find.comparePassword(input.password)
       if (!isMatch) {
         throw new HttpException({
           status: 422,
           error: 'PASSWORD_NOT_MATCH',
         }, 422);
       }
-    }
-    find.status = true;
-    await find.save();
-    // Create Token
-    const newAccessToken = await authUtils.generateAccessToken(input.data);
-    const newRefreshToken = await authUtils.generateRefreshToken(input.data);
+      find.status = true;
+      await find.save();
 
-    const authToken = {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-      kind: "",
-    };
-    return this.authModel.findOne(
-      { user: find.id }
-    ).then( async (existingUser: IAuth | null) => {
+      // Create Token
+      const newAccessToken = await authUtils.generateAccessToken(find.user);
+      const newRefreshToken = await authUtils.generateRefreshToken(find.user);
+
+      const authToken = {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,  
+        kind: "",
+      };
+      return this.authModel.findOne(
+        { user: find.id }
+      ).then(async (existingUser: IAuth | null) => {
         if (existingUser) {
           token = await this.authModel.findOneAndUpdate(
             { user: find.id },
@@ -95,7 +95,15 @@ export class UserService {
           refreshToken: token.refreshToken,
         };
       }
-    );
+      );
+    }
+    else {
+      throw new HttpException({
+        status: 422,
+        error: 'PASSWORD_NOT_FOUND',
+      }, 422);
+    }
+
   }
 
   async update(input: any) {
@@ -103,7 +111,7 @@ export class UserService {
       user: input.user,
     });
 
-    if(!iuser) {
+    if (!iuser) {
       throw new HttpException({
         status: 404,
         error: 'USER_NOT_FOUND',
@@ -130,15 +138,13 @@ export class UserService {
     return iuser;
   }
 
-  async getNameOnlineUsers()
-  { 
+  async getNameOnlineUsers() {
     const users = await this.userModel.find();
-    let usersOnline = users.filter((user) => user.status  && user.role === 'user').map((user) => user.name);
+    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => user.name);
     return usersOnline;
   }
 
-  async getAllUsers()
-  { 
+  async getAllUsers() {
     const users = await this.userModel.find();
     const listUser = users.filter((user) => user.role === 'user');
 

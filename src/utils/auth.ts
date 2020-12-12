@@ -11,7 +11,7 @@ const jwtConfig = {
 };
 
 const authUtils = {
-  async generateAccessToken(user: IUser) {
+  async generateAccessToken(user: any) {
     return jwt.sign({ user: user.user || '' }, jwtConfig.accessTokenSecret, {
       subject: user.id || '',
       audience: jwtConfig.audience,
@@ -19,7 +19,7 @@ const authUtils = {
       expiresIn: '2d',
     });
   },
-  async generateRefreshToken(user: IUser) {
+  async generateRefreshToken(user: any) {
   
     return jwt.sign({ user: user.user || '' }, jwtConfig.refreshTokenSecret, {
       subject: user.id || '',
