@@ -4,7 +4,7 @@ import { Room } from '../models/room.model';
 import { ApiTags } from '@nestjs/swagger';
 import { RoomInput } from '../interface/room.interface';
 
-@Controller('/room')
+@Controller('/rooms')
 @ApiTags('Room')
 export class RoomController {
   constructor(private readonly appService: RoomService) {}

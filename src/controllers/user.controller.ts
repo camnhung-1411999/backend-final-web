@@ -20,7 +20,7 @@ export class UserController {
 
   @Get('/online')
   getOnlineUsers(): any {
-    return this.appService.getNameOnlineUsers();
+    return this.appService.getOnlineUsers();
   }
 
   @Post('/signup')
@@ -32,7 +32,6 @@ export class UserController {
   login(@Body() input: any): Promise<any> {
     return this.appService.login(input.data);
   }
-
   @Post('/social')
   loginSocial(@Body() input: User): Promise<any> {
     return this.appService
@@ -50,7 +49,7 @@ export class UserController {
         });
       });
   }
-  
+
   @Put('/')
   update(@Body() input: any): Promise<any> {
     return this.appService.update(input);
