@@ -1,9 +1,9 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser, User } from '../models/user.model';
 import { IAuth, Auth } from '../models/auth.model';
 import { Model } from 'mongoose';
-import authUtils from '../utils/auth';
+import authUtils from '../utils/jwt';
 import { filter } from 'lodash';
 
 @Injectable()
@@ -16,7 +16,14 @@ export class UserService {
     private readonly authModel: Model<IAuth>
 
   ) { }
-  async getUsers() {
+  async find(user: string) {
+    const iuser = await this.userModel.findOne({
+      user,
+    })
+    if (!iuser) {
+      throw new HttpException('User not found.', HttpStatus.UNAUTHORIZED);
+    }
+    return iuser;
   }
 
   async postUsers(input: User) {

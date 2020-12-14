@@ -12,7 +12,7 @@ const jwtConfig = {
 
 const authUtils = {
   async generateAccessToken(user: any) {
-    return jwt.sign({ user: user.user || '' }, jwtConfig.accessTokenSecret, {
+    return jwt.sign({ user: user || '' }, jwtConfig.accessTokenSecret, {
       subject: user.id || '',
       audience: jwtConfig.audience,
       issuer: jwtConfig.issuer,
@@ -21,7 +21,7 @@ const authUtils = {
   },
   async generateRefreshToken(user: any) {
   
-    return jwt.sign({ user: user.user || '' }, jwtConfig.refreshTokenSecret, {
+    return jwt.sign({ user: user || '' }, jwtConfig.refreshTokenSecret, {
       subject: user.id || '',
       audience: jwtConfig.audience,
       issuer: jwtConfig.issuer,

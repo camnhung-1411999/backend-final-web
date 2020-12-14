@@ -8,10 +8,10 @@ import { ApiTags } from '@nestjs/swagger';
 export class UserController {
   constructor(private readonly appService: UserService) {}
 
-  @Get()
-  getUsers(): any {
-    return this.appService.getUsers();
-  }
+  // @Get()
+  // getUsers(): any {
+  //   return this.appService.getUsers();
+  // }
   
   @Get('/list')
   getAllUsers(): any {
