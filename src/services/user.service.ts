@@ -153,7 +153,7 @@ export class UserService {
 
   async getOnlineUsers() {
     const users = await this.userModel.find();
-    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => user);
+    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => ({username: user.user, name: user.name}));
     return usersOnline;
   }
 
