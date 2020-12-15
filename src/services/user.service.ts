@@ -125,11 +125,6 @@ export class UserService {
         error: 'USER_NOT_FOUND',
       }, 404);
     }
-
-    iuser.status = input.status ? input.status : iuser.status;
-    iuser.role = input.role ? input.role : iuser.role;
-    iuser.name = input.name ? input.name : iuser.name;
-
     if (input.password) {
       const isMatch: any = await iuser.comparePassword(input.oldPassword)
       if (!isMatch) {
@@ -139,16 +134,26 @@ export class UserService {
         }, 422);
       }
       iuser.password = input.password;
+      await iuser.save();
+      return iuser;
     }
-
-    await iuser.save();
-
-    return iuser;
+    const data = {
+      status: input.name || input.role ? iuser.status : input.status,
+      role: input.role ? input.role : iuser.role,
+      name:input.name ? input.name : iuser.name,
+    }
+    const result = await this.userModel.findOneAndUpdate({
+      user: input.user,
+    }, data,
+    { 
+      new: true,
+    });
+    return result
   }
 
   async getOnlineUsers() {
     const users = await this.userModel.find();
-    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => user);
+    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => ({username: user.user, name: user.name}));
     return usersOnline;
   }
 
