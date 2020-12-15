@@ -50,7 +50,7 @@ export class UserController {
       });
   }
 
-  @Put('/')
+  @Put('/logout')
   update(@Body() input: any): Promise<any> {
     return this.appService.update(input);
   }

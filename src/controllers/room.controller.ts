@@ -15,8 +15,8 @@ export class RoomController {
   }
 
 
-  @Post('/')
-  create(@User() username: string): Promise<Room> {
+  @Post('/create')
+  create(@Body() input: RoomInput): Promise<Room> {
     const data = {
         player1: username,
         player2: null,
