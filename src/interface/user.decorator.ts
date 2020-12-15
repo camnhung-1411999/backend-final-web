@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import jwt from '../utils/jwt';
 
-export const User = createParamDecorator(
+export const deUser = createParamDecorator(
   async (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     const authHeaders = request.headers.authorization;

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Put } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
 import { ApiTags } from '@nestjs/swagger';
-
+import { deUser } from '../interface/user.decorator';
 @Controller('/users')
 @ApiTags('User')
 export class UserController {
@@ -55,5 +55,13 @@ export class UserController {
     return this.appService.update(input);
   }
 
+  @Put('/logout')
+  logout(@deUser() input: string): Promise<any> {
+    const data = {
+      user: input,
+      status: false,
+    }
+    return this.appService.update(data);
+  }
 
 }

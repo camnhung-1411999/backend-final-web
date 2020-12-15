@@ -56,6 +56,7 @@ export class UserModule implements NestModule{
         {path: 'rooms/', method: RequestMethod.POST},
         {path: 'rooms/join/:id', method: RequestMethod.PUT},
         {path: 'rooms/out/:id', method: RequestMethod.PUT},
+        {path: 'history/', method: RequestMethod.GET},
         );
   }
 }
