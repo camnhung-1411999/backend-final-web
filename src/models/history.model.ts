@@ -18,5 +18,9 @@ export class History {
     @Prop({type: String, ref: User.name})
     @ApiProperty()
     loser: string;
+
+    @Prop()
+    @ApiProperty()
+    idroom: string;
 }
 export const historySchema = SchemaFactory.createForClass(History);

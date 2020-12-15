@@ -14,11 +14,13 @@ export class HistoryService {
         return this.historyModel.find();
     }
     async create(input: History) {
-        const histories = await this.historyModel.find();
+        console.log('create history data',input);
+        // haven't handle input exist roomid
         const createHistory = new this.historyModel({
             data: input.data,
             winner: input.winner,
             loser: input.loser,
+            idroom: input.idroom
 
         });
         await createHistory.save();
