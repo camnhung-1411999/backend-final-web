@@ -52,6 +52,7 @@ export class UserModule implements NestModule{
       .forRoutes(
         {path: 'users/list', method: RequestMethod.GET}, 
         {path: 'users/', method: RequestMethod.PUT},
+        {path: 'users/logout', method: RequestMethod.PUT},
 
         {path: 'rooms/', method: RequestMethod.POST},
         {path: 'rooms/join/:id', method: RequestMethod.PUT},
