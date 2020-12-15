@@ -11,17 +11,17 @@ const jwtConfig = {
 };
 
 const authUtils = {
-  async generateAccessToken(user: IUser) {
-    return jwt.sign({ user: user.user || '' }, jwtConfig.accessTokenSecret, {
+  async generateAccessToken(user: any) {
+    return jwt.sign({ user: user || '' }, jwtConfig.accessTokenSecret, {
       subject: user.id || '',
       audience: jwtConfig.audience,
       issuer: jwtConfig.issuer,
       expiresIn: '2d',
     });
   },
-  async generateRefreshToken(user: IUser) {
+  async generateRefreshToken(user: any) {
   
-    return jwt.sign({ user: user.user || '' }, jwtConfig.refreshTokenSecret, {
+    return jwt.sign({ user: user || '' }, jwtConfig.refreshTokenSecret, {
       subject: user.id || '',
       audience: jwtConfig.audience,
       issuer: jwtConfig.issuer,
