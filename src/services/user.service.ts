@@ -111,7 +111,6 @@ export class UserService {
         error: 'PASSWORD_NOT_FOUND',
       }, 422);
     }
-
   }
 
   async update(input: any) {
@@ -162,5 +161,15 @@ export class UserService {
     const listUser = users.filter((user) => user.role === 'user');
 
     return listUser;
+  }
+  async me(username: string){
+    const iuser = await this.userModel.findOne({ user: username});
+    if(!iuser) {
+      throw new HttpException({
+        status: 404,
+        error: 'USER_NOT_FOUND',
+      }, 404);
+    }
+    return iuser;
   }
 }

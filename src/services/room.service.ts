@@ -14,6 +14,22 @@ export class RoomService {
     return this.roomModel.find();
   }
 
+  async getRoom(id: string) {
+    const room = await this.roomModel.findOne({
+      idroom:id
+    });
+    if (!room) {
+      throw new HttpException(
+        {
+          status: 404,
+          error: 'ROOM_NOT_FOUND',
+        },
+        404,
+      );
+    }
+    return room;
+  }
+
   async create(input: Room) {
     const irooms = await this.roomModel.find();
     const idroom = irooms.length + 1000 + '';

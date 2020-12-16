@@ -51,12 +51,15 @@ export class UserModule implements NestModule{
       .apply(AuthMiddleware)
       .forRoutes(
         {path: 'users/list', method: RequestMethod.GET}, 
+        {path: 'users/', method: RequestMethod.GET}, 
         {path: 'users/', method: RequestMethod.PUT},
         {path: 'users/logout', method: RequestMethod.PUT},
 
-        {path: 'rooms/', method: RequestMethod.POST},
+        {path: 'rooms/create', method: RequestMethod.POST},
+        {path: 'rooms/:id', method: RequestMethod.GET},
         {path: 'rooms/join/:id', method: RequestMethod.PUT},
         {path: 'rooms/out/:id', method: RequestMethod.PUT},
+
         {path: 'history/', method: RequestMethod.GET},
         );
   }

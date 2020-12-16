@@ -14,6 +14,11 @@ export class RoomController {
     return this.appService.list();
   }
 
+  @Get('/:id')
+  getRoom(@Param('id') idroom: string): any {
+    return this.appService.getRoom(idroom);
+  }
+
 
   @Post('/create')
   create(@deUser() username: string): Promise<Room> {

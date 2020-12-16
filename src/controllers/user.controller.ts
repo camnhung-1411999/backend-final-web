@@ -18,6 +18,11 @@ export class UserController {
     return this.appService.getAllUsers();
   }
 
+  @Get('/')
+  me(@deUser() username: string): any {
+    return this.appService.me(username);
+  }
+
   @Get('/online')
   getOnlineUsers(): any {
     return this.appService.getOnlineUsers();
