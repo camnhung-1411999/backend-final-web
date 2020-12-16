@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IHistory, History } from '../models/history.model';
 import { Model } from 'mongoose';
+import * as moment from 'moment';
 
 @Injectable()
 export class HistoryService {
@@ -14,13 +15,14 @@ export class HistoryService {
         return this.historyModel.find();
     }
     async create(input: History) {
+        const createdDate = moment(Date.now()).format("DD-MM-YYYY HH:mm:ss");
         console.log('create history data',input);
         // haven't handle input exist roomid
         const createHistory = new this.historyModel({
             data: input.data,
             winner: input.winner,
             loser: input.loser,
-            idroom: input.idroom
+            created: createdDate
 
         });
         await createHistory.save();
@@ -31,6 +33,13 @@ export class HistoryService {
         let username = input;
         const histories = await this.historyModel.find({ $or: [{ winner: username }, { loser: username }]});
         return histories;
+
+    }
+
+    async findSingByID(input: string) {
+        let _id = input;
+        const history = await this.historyModel.findOne({_id});
+        return history;
 
     }
 }

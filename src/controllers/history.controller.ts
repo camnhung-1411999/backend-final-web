@@ -12,9 +12,14 @@ export class HistoryController {
         return this.appService.listAll();
     }
 
-    @Get('/')
-    listByUser(@deUser() username: string) {
+    @Get('/:user')
+    listByUser(@Param('user') username: string) {
         return this.appService.findByUsername(username);
+    }
+
+    @Get('/result/:id')
+    findSingByRoomID(@Param('id') _id: string) {
+        return this.appService.findSingByID(_id);
     }
 
     @Post('/')
