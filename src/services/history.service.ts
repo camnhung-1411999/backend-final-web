@@ -32,6 +32,7 @@ export class HistoryService {
     async findByUsername(input: string) {
         let username = input;
         const histories = await this.historyModel.find({ $or: [{ winner: username }, { loser: username }]});
+    console.log(histories);
         return histories;
 
     }
@@ -43,3 +44,4 @@ export class HistoryService {
 
     }
 }
+//bánh ơi cái này lưu chưa, bánh nhấn save

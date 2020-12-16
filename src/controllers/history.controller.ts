@@ -12,8 +12,8 @@ export class HistoryController {
         return this.appService.listAll();
     }
 
-    @Get('/:user')
-    listByUser(@Param('user') username: string) {
+    @Get('/')
+    listByUser(@deUser() username: string) {
         return this.appService.findByUsername(username);
     }
 
