@@ -21,6 +21,6 @@ export class History {
 
     @Prop()
     @ApiProperty()
-    idroom: string;
+    created: string;
 }
 export const historySchema = SchemaFactory.createForClass(History);
