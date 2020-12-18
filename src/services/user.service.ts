@@ -5,6 +5,7 @@ import { IAuth, Auth } from '../models/auth.model';
 import { Model } from 'mongoose';
 import authUtils from '../utils/jwt';
 import { filter } from 'lodash';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -12,11 +13,11 @@ export class UserService {
     @InjectModel(User.name)
     private readonly userModel: Model<IUser>,
 
-    @InjectModel(Auth.name)
-    private readonly authModel: Model<IAuth>
+    private jwtService: JwtService,
 
   ) { }
   async find(user: string) {
+    console.log(user);
     const iuser = await this.userModel.findOne({
       user,
     })
@@ -70,40 +71,39 @@ export class UserService {
           error: 'PASSWORD_NOT_MATCH',
         }, 422);
       }
-      // Create Token
-      const newAccessToken = await authUtils.generateAccessToken(find.user);
-      const newRefreshToken = await authUtils.generateRefreshToken(find.user);
 
-      const authToken = {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,  
-        kind: "",
-      };
-      return this.authModel.findOne(
-        { user: find.id }
-      ).then(async (existingUser: IAuth | null) => {
-        if (existingUser) {
-          token = await this.authModel.findOneAndUpdate(
-            { user: find.id },
-            authToken
-          );
-        } else {
-          token = await this.authModel.create({
-            user: find.id,
-            ...authToken,
-          });
-        }
-        find.status = true;
-        find.password = input.password;
-        await find.save();
-        return {
-          user: find.user,
-          name: find.name,
-          accessToken: token.accessToken,
-          refreshToken: token.refreshToken,
-        };
+      find.status = true;
+      find.password = input.password;
+      await find.save();
+      const payload = { user: input.user };
+
+      return {
+        accessToken: this.jwtService.sign(payload),
+        refreshToken: this.jwtService.sign(payload)
       }
-      );
+      // return this.authModel.findOne(
+      //   { user: find.id }
+      // ).then(async (existingUser: IAuth | null) => {
+      //   if (existingUser) {
+      //     token = await this.authModel.findOneAndUpdate(
+      //       { user: find.id },
+      //       authToken
+      //     );
+      //   } else {
+      //     token = await this.authModel.create({
+      //       user: find.id,
+      //       ...authToken,
+      //     });
+      //   }
+
+      //   return {
+      //     user: find.user,
+      //     name: find.name,
+      //     accessToken: token.accessToken,
+      //     refreshToken: token.refreshToken,
+      //   };
+      // }
+      // );
     }
     else {
       throw new HttpException({
@@ -139,20 +139,20 @@ export class UserService {
     const data = {
       status: input.name || input.role ? iuser.status : input.status,
       role: input.role ? input.role : iuser.role,
-      name:input.name ? input.name : iuser.name,
+      name: input.name ? input.name : iuser.name,
     }
     const result = await this.userModel.findOneAndUpdate({
       user: input.user,
     }, data,
-    { 
-      new: true,
-    });
+      {
+        new: true,
+      });
     return result
   }
 
   async getOnlineUsers() {
     const users = await this.userModel.find();
-    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => ({username: user.user, name: user.name}));
+    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => ({ username: user.user, name: user.name }));
     return usersOnline;
   }
 
@@ -161,15 +161,5 @@ export class UserService {
     const listUser = users.filter((user) => user.role === 'user');
 
     return listUser;
-  }
-  async me(username: string){
-    const iuser = await this.userModel.findOne({ user: username});
-    if(!iuser) {
-      throw new HttpException({
-        status: 404,
-        error: 'USER_NOT_FOUND',
-      }, 404);
-    }
-    return iuser;
   }
 }
