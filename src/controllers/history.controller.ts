@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common'
+import { Body, Controller, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common'
 import { HistoryService } from '../services/history.service';
 import { History } from '../models/history.model';
 import { ApiTags } from '@nestjs/swagger';
-import { deUser } from '../interface/user.decorator';
+import {JwtAuthGuard} from '../interface/user.guard';
 @Controller('/history')
 @ApiTags('History')
 export class HistoryController {
@@ -13,8 +13,9 @@ export class HistoryController {
     }
 
     @Get('/')
-    listByUser(@deUser() username: string) {
-        return this.appService.findByUsername(username);
+    @UseGuards(JwtAuthGuard)
+    listByUser(@Request() req) {
+        return this.appService.findByUsername(req.user);
     }
 
     @Get('/result/:id')
@@ -25,5 +26,5 @@ export class HistoryController {
     @Post('/')
     create(@Body() input: History): Promise<History>{
         return this.appService.create(input);
-    }    
+    }
 }

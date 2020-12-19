@@ -1,9 +1,9 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, UseGuards, Request, Post, Put } from '@nestjs/common';
 import { RoomService } from '../services/room.service';
 import { Room } from '../models/room.model';
 import { ApiTags } from '@nestjs/swagger';
 import { RoomInput } from '../interface/room.interface';
-import { deUser } from '../interface/user.decorator';
+import {JwtAuthGuard } from '../interface/user.guard';
 @Controller('/rooms')
 @ApiTags('Room')
 export class RoomController {
@@ -21,9 +21,10 @@ export class RoomController {
 
 
   @Post('/create')
-  create(@deUser() username: string): Promise<Room> {
+  @UseGuards(JwtAuthGuard)
+  create(@Request() req): Promise<Room> {
     const data = {
-        player1: username,
+        player1: req.user,
         player2: null,
         idroom: null,
     }
@@ -31,19 +32,21 @@ export class RoomController {
   }
 
   @Put('/join/:id')
-  join(@Param('id') idroom: string, @deUser() username: string): Promise<any> {
+  @UseGuards(JwtAuthGuard)
+  join(@Param('id') idroom: string, @Request() req): Promise<any> {
     const data = {
         idroom,
-        player: username,
+        player: req.user,
     }
     return this.appService.join(data);
   }
 
   @Put('/out/:id')
-  out(@Param('id') idroom: string,@deUser() username: string): Promise<any> {
+  @UseGuards(JwtAuthGuard)
+  out(@Param('id') idroom: string,@Request() req): Promise<any> {
     const data = {
         idroom,
-        player: username,
+        player: req.user,
     }
     return this.appService.outRoom(data);
   }

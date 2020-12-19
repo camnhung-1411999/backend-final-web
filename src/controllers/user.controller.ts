@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Post, Put,Request,UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put,Req,Request,UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
 import { ApiTags } from '@nestjs/swagger';
-import { deUser } from '../interface/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGuard} from '../interface/auth.guard';
 import { JwtAuthGuard } from '../interface/user.guard';
@@ -13,11 +12,6 @@ export class UserController {
     private readonly appService: UserService,
     ) {}
 
-  // @Get()
-  // getUsers(): any {
-  //   return this.appService.getUsers();
-  // }
-  
   @Get('/list')
   getAllUsers(): any {
     return this.appService.getAllUsers();
@@ -44,33 +38,39 @@ export class UserController {
   login(@Body() input: any): Promise<any> {
     return this.appService.login(input.data);
   }
-  // @Post('/social')
-  // loginSocial(@Body() input: User): Promise<any> {
-  //   return this.appService
-  //     .postUsers(input)
-  //     .then(async (data) => {
-  //       const user = {data:{user: data.user, password: data.password}}
-  //       await this.appService.login(user).then((iuser) => {
-  //         return iuser;
-  //       });
-  //     })
-  //     .catch(async (err) => {
-  //       const user = { data:{user: input.user, password: input.password}}
-  //       await this.appService.login(user).then((iuser) => {
-  //         return iuser;
-  //       });
-  //     });
-  // }
+  @Post('/social')
+  loginSocial(@Body() input: User): Promise<any> {
+    return this.appService
+      .postUsers(input)
+      .then(async (data) => {
+        const user = {user: data.user, password: data.password}
+        await this.appService.login(user).then((iuser) => {
+          return iuser;
+        });
+      })
+      .catch(async (err) => {
+        const user = {user: input.user, password: input.password}
+        await this.appService.login(user).then((iuser) => {
+          return iuser;
+        });
+      });
+  }
 
   @Put('/')
-  update(@Body() input: any): Promise<any> {
-    return this.appService.update(input);
+  @UseGuards(JwtAuthGuard)
+  update(@Body() input: any, @Request() req): Promise<any> {
+    const data ={
+      user: req.user,
+      ...input
+    }
+    return this.appService.update(data);
   }
 
   @Put('/logout')
-  logout(@deUser() input: string): Promise<any> {
+  @UseGuards(JwtAuthGuard)
+  logout(@Request() req: any): Promise<any> {
     const data = {
-      user: input,
+      user: req.user,
       status: false,
     }
     return this.appService.update(data);
