@@ -19,10 +19,11 @@ export class HistoryService {
         console.log('create history data',input);
         // haven't handle input exist roomid
         const createHistory = new this.historyModel({
-            data: input.data,
+            result: input.result,
             winner: input.winner,
             loser: input.loser,
-            created: createdDate
+            datetime: createdDate,
+            chat: input.chat,
 
         });
         await createHistory.save();
