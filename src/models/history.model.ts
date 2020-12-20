@@ -9,7 +9,7 @@ export type IHistory = History & mongoose.Document;
 export class History {
     @Prop()
     @ApiProperty()
-    data: [];
+    result: [];
 
     @Prop({type: String, ref: User.name})
     @ApiProperty()
@@ -21,6 +21,12 @@ export class History {
 
     @Prop()
     @ApiProperty()
-    created: string;
+    datetime: string;
+
+    @Prop()
+    @ApiProperty()
+    chat: [];
+
+
 }
 export const historySchema = SchemaFactory.createForClass(History);
