@@ -1,16 +1,15 @@
-import { Body, Controller, Get, Post, Put,Req,Request,UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, Request, UseGuards } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import { User } from '../models/user.model';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
-import { LocalAuthGuard} from '../interface/auth.guard';
+import { LocalAuthGuard } from '../interface/auth.guard';
 import { JwtAuthGuard } from '../interface/user.guard';
 @Controller('/users')
 @ApiTags('User')
 export class UserController {
   constructor(
     private readonly appService: UserService,
-    ) {}
+  ) { }
 
   @Get('/list')
   getAllUsers(): any {
@@ -20,7 +19,7 @@ export class UserController {
   @Get('/')
   @UseGuards(JwtAuthGuard)
   me(@Request() req): any {
-    return this.appService.find(req.user);
+    return this.appService.find(req.user.user);
   }
 
   @Get('/online')
@@ -43,14 +42,13 @@ export class UserController {
     return this.appService
       .postUsers(input)
       .then(async (data) => {
-        const user = {user: data.user, password: data.password}
+        const user = { user: data.user, password: data.password, type: 'social' }
         await this.appService.login(user).then((iuser) => {
           return iuser;
         });
       })
-      .catch(async (err) => {
-        const user = {user: input.user, password: input.password}
-        await this.appService.login(user).then((iuser) => {
+      .catch(() => {
+        return this.appService.login({ user: input.user, password: input.password, type: 'social'}).then((iuser) => {
           return iuser;
         });
       });
@@ -59,8 +57,8 @@ export class UserController {
   @Put('/')
   @UseGuards(JwtAuthGuard)
   update(@Body() input: any, @Request() req): Promise<any> {
-    const data ={
-      user: req.user,
+    const data = {
+      user: req.user.user,
       ...input
     }
     return this.appService.update(data);
@@ -70,7 +68,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   logout(@Request() req: any): Promise<any> {
     const data = {
-      user: req.user,
+      user: req.user.user,
       status: false,
     }
     return this.appService.update(data);

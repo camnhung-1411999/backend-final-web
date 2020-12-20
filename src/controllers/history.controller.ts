@@ -15,7 +15,7 @@ export class HistoryController {
     @Get('/')
     @UseGuards(JwtAuthGuard)
     listByUser(@Request() req) {
-        return this.appService.findByUsername(req.user);
+        return this.appService.findByUsername(req.user.user);
     }
 
     @Get('/result/:id')

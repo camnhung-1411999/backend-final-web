@@ -24,7 +24,7 @@ export class RoomController {
   @UseGuards(JwtAuthGuard)
   create(@Request() req): Promise<Room> {
     const data = {
-        player1: req.user,
+        player1: req.user.user,
         player2: null,
         idroom: null,
     }
@@ -36,7 +36,7 @@ export class RoomController {
   join(@Param('id') idroom: string, @Request() req): Promise<any> {
     const data = {
         idroom,
-        player: req.user,
+        player: req.user.user,
     }
     return this.appService.join(data);
   }
@@ -46,7 +46,7 @@ export class RoomController {
   out(@Param('id') idroom: string,@Request() req): Promise<any> {
     const data = {
         idroom,
-        player: req.user,
+        player: req.user.user,
     }
     return this.appService.outRoom(data);
   }

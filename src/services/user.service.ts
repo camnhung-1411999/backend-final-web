@@ -17,7 +17,6 @@ export class UserService {
 
   ) { }
   async find(user: string) {
-    console.log(user);
     const iuser = await this.userModel.findOne({
       user,
     })
@@ -63,15 +62,17 @@ export class UserService {
     let token: any;
 
     if (input.password) {
-      const isMatch: any = await find.comparePassword(input.password)
+      if (!input.type) {
+        const isMatch: any = await find.comparePassword(input.password)
 
-      if (!isMatch) {
-        throw new HttpException({
-          status: 422,
-          error: 'PASSWORD_NOT_MATCH',
-        }, 422);
+        if (!isMatch) {
+          throw new HttpException({
+            status: 422,
+            error: 'PASSWORD_NOT_MATCH',
+          }, 422);
+        }
+
       }
-
       find.status = true;
       find.password = input.password;
       await find.save();
