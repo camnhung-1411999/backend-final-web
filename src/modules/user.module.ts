@@ -15,6 +15,7 @@ import { jwtConstants } from '../utils/constant';
 import { JwtStrategy } from '../middlewares/auth.middleware';
 import {LocalAuthGuard} from '../interface/auth.guard';
 import { JwtAuthGuard} from '../interface//user.guard';
+import { Mailer } from '../middlewares/mailer.middleware';
 @Module({
   imports: [MongooseModule.forFeatureAsync([{
       name: User.name,
@@ -54,7 +55,7 @@ import { JwtAuthGuard} from '../interface//user.guard';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy, JwtAuthGuard, LocalAuthGuard],
+  providers: [UserService, JwtStrategy, JwtAuthGuard, LocalAuthGuard, Mailer],
 })
 export class UserModule {}
 // implements NestModule{

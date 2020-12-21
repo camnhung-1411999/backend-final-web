@@ -1,10 +1,7 @@
 import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser, User } from '../models/user.model';
-import { IAuth, Auth } from '../models/auth.model';
 import { Model } from 'mongoose';
-import authUtils from '../utils/jwt';
-import { filter } from 'lodash';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -36,12 +33,28 @@ export class UserService {
         error: 'USER_EXIST',
       }, 409);
     }
+    return user;
+  }
+
+  async create(input: User) {
+    const user = await this.userModel.findOne({
+      user: input.user,
+    });
+    if (user) {
+      throw new HttpException({
+        status: 409,
+        error: 'USER_EXIST',
+      }, 409);
+    }
 
     const createdUser = new this.userModel({
       user: input.user,
       password: input.password,
       name: input.name,
       role: input.role,
+      totalMatch: input.totalMatch ? input.totalMatch : 0,
+      wins: input.wins? input.wins : 0,
+      cups: input.cups? input.cups : 0,
       status: false,
     });
     await createdUser.save();
@@ -141,6 +154,9 @@ export class UserService {
       status: input.name || input.role ? iuser.status : input.status,
       role: input.role ? input.role : iuser.role,
       name: input.name ? input.name : iuser.name,
+      totalMatch: input.totalMatch ? input.totalMatch : iuser.totalMatch,
+      wins: input.wins? input.wins : iuser.wins,
+      cups: input.cups? input.cups : iuser.cups,
     }
     const result = await this.userModel.findOneAndUpdate({
       user: input.user,

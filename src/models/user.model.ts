@@ -27,6 +27,18 @@ export type IUser = User & Document;
     @ApiProperty()
     status: boolean;
 
+    @Prop()
+    @ApiProperty()
+    totalMatch: number;
+
+    @Prop()
+    @ApiProperty()
+    wins: number;
+
+    @Prop()
+    @ApiProperty()
+    cups: number;
+
     comparePassword: ComparePasswordFunction;
   }
 

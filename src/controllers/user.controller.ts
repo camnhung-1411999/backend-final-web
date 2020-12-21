@@ -4,11 +4,13 @@ import { User } from '../models/user.model';
 import { ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from '../interface/auth.guard';
 import { JwtAuthGuard } from '../interface/user.guard';
+import { Mailer } from '../middlewares/mailer.middleware';
 @Controller('/users')
 @ApiTags('User')
 export class UserController {
   constructor(
     private readonly appService: UserService,
+    private readonly mailer: Mailer,
   ) { }
 
   @Get('/list')
@@ -28,8 +30,16 @@ export class UserController {
   }
 
   @Post('/signup')
-  signup(@Body() input: User): Promise<User> {
-    return this.appService.postUsers(input);
+  async signup(@Body() input: any): Promise<null> {
+    await this.appService.postUsers(input);
+    await this.mailer.send(input);
+    return null;
+  }
+
+  @Post('/subsignup')
+  subSignup(@Body() input: any): Promise<User> {
+    console.log(input);
+    return this.appService.create(input);
   }
 
   @Post('/login')
@@ -37,6 +47,7 @@ export class UserController {
   login(@Body() input: any): Promise<any> {
     return this.appService.login(input.data);
   }
+  
   @Post('/social')
   loginSocial(@Body() input: User): Promise<any> {
     return this.appService
