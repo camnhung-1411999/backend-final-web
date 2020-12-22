@@ -4,7 +4,7 @@ import { Logger } from 'nestjs-pino-logger';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const logger = new Logger();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {cors:true});
   app.enableCors();
   const options = new DocumentBuilder()
     .setTitle('Caro game')
