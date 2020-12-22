@@ -5,7 +5,7 @@ import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class Mailer {
-    async send(data: any): Promise<void> {
+    async send(data: any, url: string): Promise<void> {
         const transporter: any = await nodemailer.createTransport({
           pool: true,
             service: 'Gmail',
@@ -23,7 +23,7 @@ export class Mailer {
         });
         try {
          const mail2 = await email.send({
-            template: path.join(__dirname, '../', 'templates', '/register'),
+            template: path.join(__dirname, url),
             message: {
               to: data.user,
             },

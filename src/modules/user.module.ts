@@ -16,6 +16,8 @@ import { JwtStrategy } from '../middlewares/auth.middleware';
 import {LocalAuthGuard} from '../interface/auth.guard';
 import { JwtAuthGuard} from '../interface//user.guard';
 import { Mailer } from '../middlewares/mailer.middleware';
+import { CloudinaryProvider} from '../utils/cloudinary.provider';
+import { CloudinaryService } from '../services/cloudinary.service';
 @Module({
   imports: [MongooseModule.forFeatureAsync([{
       name: User.name,
@@ -55,25 +57,7 @@ import { Mailer } from '../middlewares/mailer.middleware';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy, JwtAuthGuard, LocalAuthGuard, Mailer],
+  providers: [UserService, JwtStrategy, JwtAuthGuard, LocalAuthGuard, Mailer, CloudinaryService, CloudinaryProvider],
+  exports: [CloudinaryProvider, CloudinaryService],
 })
 export class UserModule {}
-// implements NestModule{
-//   public configure(consumer: MiddlewareConsumer) {
-//     consumer
-//       .apply(AuthMiddleware)
-//       .forRoutes(
-//         {path: 'users/list', method: RequestMethod.GET}, 
-//         {path: 'users/', method: RequestMethod.GET}, 
-//         {path: 'users/', method: RequestMethod.PUT},
-//         {path: 'users/logout', method: RequestMethod.PUT},
-
-//         {path: 'rooms/create', method: RequestMethod.POST},
-//         {path: 'rooms/:id', method: RequestMethod.GET},
-//         {path: 'rooms/join/:id', method: RequestMethod.PUT},
-//         {path: 'rooms/out/:id', method: RequestMethod.PUT},
-
-//         {path: 'history/', method: RequestMethod.GET},
-//         );
-//   }
-// }

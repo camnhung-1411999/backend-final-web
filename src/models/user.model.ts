@@ -25,6 +25,10 @@ export type IUser = User & Document;
 
     @Prop()
     @ApiProperty()
+    image: string;
+
+    @Prop()
+    @ApiProperty()
     status: boolean;
 
     @Prop()

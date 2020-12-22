@@ -11,12 +11,11 @@ export class UserService {
     private readonly userModel: Model<IUser>,
 
     private jwtService: JwtService,
-
-  ) { }
+  ) {}
   async find(user: string) {
     const iuser = await this.userModel.findOne({
       user,
-    })
+    });
     if (!iuser) {
       throw new HttpException('User not found.', HttpStatus.UNAUTHORIZED);
     }
@@ -28,10 +27,13 @@ export class UserService {
       user: input.user,
     });
     if (user) {
-      throw new HttpException({
-        status: 409,
-        error: 'USER_EXIST',
-      }, 409);
+      throw new HttpException(
+        {
+          status: 409,
+          error: 'USER_EXIST',
+        },
+        409,
+      );
     }
     return user;
   }
@@ -41,10 +43,13 @@ export class UserService {
       user: input.user,
     });
     if (user) {
-      throw new HttpException({
-        status: 409,
-        error: 'USER_EXIST',
-      }, 409);
+      throw new HttpException(
+        {
+          status: 409,
+          error: 'USER_EXIST',
+        },
+        409,
+      );
     }
 
     const createdUser = new this.userModel({
@@ -53,9 +58,10 @@ export class UserService {
       name: input.name,
       role: input.role,
       totalMatch: input.totalMatch ? input.totalMatch : 0,
-      wins: input.wins? input.wins : 0,
-      cups: input.cups? input.cups : 0,
+      wins: input.wins ? input.wins : 0,
+      cups: input.cups ? input.cups : 0,
       status: false,
+      image: null,
     });
     await createdUser.save();
 
@@ -67,24 +73,29 @@ export class UserService {
       user: input.user,
     });
     if (!find) {
-      throw new HttpException({
-        status: 404,
-        error: 'USER_NOT_FOUND',
-      }, 404);
+      throw new HttpException(
+        {
+          status: 404,
+          error: 'USER_NOT_FOUND',
+        },
+        404,
+      );
     }
     let token: any;
 
     if (input.password) {
       if (!input.type) {
-        const isMatch: any = await find.comparePassword(input.password)
+        const isMatch: any = await find.comparePassword(input.password);
 
         if (!isMatch) {
-          throw new HttpException({
-            status: 422,
-            error: 'PASSWORD_NOT_MATCH',
-          }, 422);
+          throw new HttpException(
+            {
+              status: 422,
+              error: 'PASSWORD_NOT_MATCH',
+            },
+            422,
+          );
         }
-
       }
       find.status = true;
       find.password = input.password;
@@ -93,8 +104,8 @@ export class UserService {
 
       return {
         accessToken: this.jwtService.sign(payload),
-        refreshToken: this.jwtService.sign(payload)
-      }
+        refreshToken: this.jwtService.sign(payload),
+      };
       // return this.authModel.findOne(
       //   { user: find.id }
       // ).then(async (existingUser: IAuth | null) => {
@@ -118,12 +129,14 @@ export class UserService {
       //   };
       // }
       // );
-    }
-    else {
-      throw new HttpException({
-        status: 422,
-        error: 'PASSWORD_NOT_FOUND',
-      }, 422);
+    } else {
+      throw new HttpException(
+        {
+          status: 422,
+          error: 'PASSWORD_NOT_FOUND',
+        },
+        422,
+      );
     }
   }
 
@@ -133,18 +146,26 @@ export class UserService {
     });
 
     if (!iuser) {
-      throw new HttpException({
-        status: 404,
-        error: 'USER_NOT_FOUND',
-      }, 404);
+      throw new HttpException(
+        {
+          status: 404,
+          error: 'USER_NOT_FOUND',
+        },
+        404,
+      );
     }
     if (input.password) {
-      const isMatch: any = await iuser.comparePassword(input.oldPassword)
-      if (!isMatch) {
-        throw new HttpException({
-          status: 422,
-          error: 'PASSWORD_NOT_MATCH',
-        }, 422);
+      if (input.oldPassword) {
+        const isMatch: any = await iuser.comparePassword(input.oldPassword);
+        if (!isMatch) {
+          throw new HttpException(
+            {
+              status: 422,
+              error: 'PASSWORD_NOT_MATCH',
+            },
+            422,
+          );
+        }
       }
       iuser.password = input.password;
       await iuser.save();
@@ -155,21 +176,27 @@ export class UserService {
       role: input.role ? input.role : iuser.role,
       name: input.name ? input.name : iuser.name,
       totalMatch: input.totalMatch ? input.totalMatch : iuser.totalMatch,
-      wins: input.wins? input.wins : iuser.wins,
-      cups: input.cups? input.cups : iuser.cups,
-    }
-    const result = await this.userModel.findOneAndUpdate({
-      user: input.user,
-    }, data,
+      wins: input.wins ? input.wins : iuser.wins,
+      cups: input.cups ? input.cups : iuser.cups,
+      image: input.image ? input.image : iuser.image,
+    };
+    const result = await this.userModel.findOneAndUpdate(
+      {
+        user: input.user,
+      },
+      data,
       {
         new: true,
-      });
-    return result
+      },
+    );
+    return result;
   }
 
   async getOnlineUsers() {
     const users = await this.userModel.find();
-    let usersOnline = users.filter((user) => user.status && user.role === 'user').map((user) => ({ username: user.user, name: user.name }));
+    let usersOnline = users
+      .filter((user) => user.status && user.role === 'user')
+      .map((user) => ({ username: user.user, name: user.name }));
     return usersOnline;
   }
 
