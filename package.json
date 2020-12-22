@@ -25,7 +25,7 @@
     "tsconfig-paths": "^3.9.0"
   },
   "scripts": {
-    "dev": "NODE_ENV=production nodemon",
+    "dev": "nodemon",
     "build": "tsc",
     "start:dev": "nest start --watch",
     "start": "nest start",
