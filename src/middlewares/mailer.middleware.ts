@@ -23,7 +23,7 @@ export class Mailer {
         });
         try {
          const mail2 = await email.send({
-            template: path.join(__dirname, url),
+            html: ``,
             message: {
               to: data.user,
             },
