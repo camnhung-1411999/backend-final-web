@@ -40,7 +40,7 @@ export class UserController {
       url: process.env.URL_FE + `checkmail?fname=${input.firstName}&lname=${input.lastName}&user=${input.user}&pwd=${input.password}`,
       ...input,
     }
-    const url = '../../templates/register';
+    const url = '../../src/templates/register';
     await this.mailer.send(data, url);
     return null;
   }
@@ -53,7 +53,7 @@ export class UserController {
   @Post('/reset')
   async resetPassword(@Body() input: any): Promise<null> {
     await this.appService.find(input.user);
-    const url = '../../templates/password';
+    const url = '../../src/templates/password';
     const data = {
       ...input,
       url: process.env.URL_FE + `resetpassword/${input.user}`,
