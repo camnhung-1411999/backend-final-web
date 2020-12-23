@@ -18,6 +18,18 @@ export type IRoom = Room & mongoose.Document;
     @Prop()
     @ApiProperty()
     idroom: string;
+
+    @Prop()
+    @ApiProperty()
+    public: string;
+
+    @Prop()
+    @ApiProperty()
+    password: string | null;
+
+    @Prop()
+    @ApiProperty({ type:[]})
+    viewers: string[];
   }
 
 export const roomSchema = SchemaFactory.createForClass(Room);

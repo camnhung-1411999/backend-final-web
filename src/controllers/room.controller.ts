@@ -22,11 +22,14 @@ export class RoomController {
 
   @Post('/create')
   @UseGuards(JwtAuthGuard)
-  create(@Request() req): Promise<Room> {
-    const data = {
+  create(@Request() req, @Body() input): Promise<Room> {
+    const data : any = {
         player1: req.user.user,
         player2: null,
         idroom: null,
+        public: input.public,
+        password: input.public ? null : input.password,
+        viewers: [],
     }
     return this.appService.create(data);
   }
