@@ -28,7 +28,7 @@ export class RoomController {
         player2: null,
         idroom: null,
         public: input.public,
-        password: input.public ? null : input.password,
+        password: input.public ? input.password: null,
         viewers: [],
     }
     return this.appService.create(data);

@@ -41,7 +41,7 @@ export class RoomService {
     
     await createRoom.save();
 
-    createRoom.idroom = createRoom.id.slice(19, 23);
+    createRoom.idroom = createRoom.id.slice(19, createRoom.id.length);
 
     await createRoom.save();
     return createRoom;
