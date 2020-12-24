@@ -51,7 +51,7 @@ export class RoomService {
     const iroom = await this.roomModel.findOne({
       idroom: input.idroom,
     });
-    if (!iroom) {
+    if (!iroom || iroom.password != input.password) {
       throw new HttpException(
         {
           status: 404,
