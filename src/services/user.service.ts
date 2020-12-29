@@ -103,6 +103,9 @@ export class UserService {
       const payload = { user: input.user };
 
       return {
+        name: find.name,
+        user: find.user,
+        image: find.image,
         accessToken: this.jwtService.sign(payload),
         refreshToken: this.jwtService.sign(payload),
       };
@@ -196,7 +199,7 @@ export class UserService {
     const users = await this.userModel.find();
     let usersOnline = users
       .filter((user) => user.status && user.role === 'user')
-      .map((user) => ({ username: user.user, name: user.name }));
+      .map((user) => ({ username: user.user, name: user.name, image: user.image }));
     return usersOnline;
   }
 
