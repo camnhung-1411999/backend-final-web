@@ -199,7 +199,11 @@ export class UserService {
     const users = await this.userModel.find();
     let usersOnline = users
       .filter((user) => user.status && user.role === 'user')
-      .map((user) => ({ username: user.user, name: user.name, image: user.image }));
+      .map((user) => ({
+        username: user.user,
+        name: user.name,
+        image: user.image,
+      }));
     return usersOnline;
   }
 
@@ -207,6 +211,15 @@ export class UserService {
     const users = await this.userModel.find();
     const listUser = users.filter((user) => user.role === 'user');
 
+    return listUser;
+  }
+
+  async getListRank() {
+    const users = await this.userModel.find();
+    const listUser = users
+      .filter((user) => user.role === 'user')
+      .map((user) => ({ name: user.name, image: user.image, cups: user.cups }))
+      .sort((user1, user2) => user2.cups - user1.cups);
     return listUser;
   }
 }
