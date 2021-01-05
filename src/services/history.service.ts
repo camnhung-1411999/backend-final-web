@@ -19,6 +19,7 @@ export class HistoryService {
         console.log('create history data',input);
         // haven't handle input exist roomid
         const createHistory = new this.historyModel({
+            roomId: input.roomId,
             result: input.result,
             winner: input.winner,
             loser: input.loser,
@@ -42,6 +43,11 @@ export class HistoryService {
         let _id = input;
         const history = await this.historyModel.findOne({_id});
         return history;
+
+    }
+
+    async sendMessage(roomId:string, message:any){
+        // const histories = await this.historyModel.find({ $or: [{ winner: username }, { loser: username }]});
 
     }
 }

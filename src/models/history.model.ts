@@ -9,6 +9,10 @@ export type IHistory = History & mongoose.Document;
 export class History {
     @Prop()
     @ApiProperty()
+    roomId: string;
+
+    @Prop()
+    @ApiProperty()
     result: [];
 
     @Prop({type: String, ref: User.name})
@@ -21,7 +25,7 @@ export class History {
 
     @Prop()
     @ApiProperty()
-    datetime: string;
+    datetime: Date;
 
     @Prop()
     @ApiProperty()

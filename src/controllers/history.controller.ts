@@ -27,4 +27,9 @@ export class HistoryController {
     create(@Body() input: History): Promise<History>{
         return this.appService.create(input);
     }
+
+    @Post('/send/:id')
+    sendMessage(@Param('id') _id: string,@Body() message: any): Promise<any>{
+        return this.appService.sendMessage(_id, message);
+    }
 }
