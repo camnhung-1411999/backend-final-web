@@ -4,9 +4,9 @@ import { User } from './user.model';
 import { Room } from './room.model';
 import { ApiProperty } from '@nestjs/swagger';
 
-export type IHistory = History & mongoose.Document;
+export type IGame = Game & mongoose.Document;
 @Schema()
-export class History {
+export class Game {
     @Prop()
     @ApiProperty()
     roomId: string;
@@ -17,11 +17,11 @@ export class History {
 
     @Prop({type: String, ref: User.name})
     @ApiProperty()
-    winner: string;
+    player1: string;
 
     @Prop({type: String, ref: User.name})
     @ApiProperty()
-    loser: string;
+    player2: string;
 
     @Prop()
     @ApiProperty()
@@ -33,4 +33,4 @@ export class History {
 
 
 }
-export const historySchema = SchemaFactory.createForClass(History);
+export const gameSchema = SchemaFactory.createForClass(Game);

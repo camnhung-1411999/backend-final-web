@@ -46,9 +46,4 @@ export class HistoryService {
 
     }
 
-    async sendMessage(roomId:string, message:any){
-        // const histories = await this.historyModel.find({ $or: [{ winner: username }, { loser: username }]});
-
-    }
 }
-//bánh ơi cái này lưu chưa, bánh nhấn save

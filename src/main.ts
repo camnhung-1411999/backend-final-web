@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino-logger';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
 async function bootstrap() {
   const logger = new Logger();
-  const app = await NestFactory.create(AppModule, {cors:true});
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {cors:true});
   app.enableCors();
   const options = new DocumentBuilder()
     .setTitle('Caro game')
