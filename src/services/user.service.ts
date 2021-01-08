@@ -106,6 +106,7 @@ export class UserService {
         name: find.name,
         user: find.user,
         image: find.image,
+        role: find.role,
         accessToken: this.jwtService.sign(payload),
         refreshToken: this.jwtService.sign(payload),
       };
