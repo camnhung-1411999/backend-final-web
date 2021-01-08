@@ -13,6 +13,7 @@ import { Server } from 'ws';
 import { InjectModel } from '@nestjs/mongoose';
 import { IGame, Game } from '../../models/game.model';
 import { Model } from 'mongoose';
+import { IRoom, Room } from '../../models/room.model';
 
 @WebSocketGateway()
 export class RoomSocketGateway
@@ -21,6 +22,8 @@ export class RoomSocketGateway
 
   constructor(
     @InjectModel(Game.name) private readonly gameModel: Model<IGame>,
+    @InjectModel(Room.name) private readonly roomModel: Model<IRoom>,
+
   ) {}
 
   private logger: Logger = new Logger('RoomGateway');
@@ -31,10 +34,17 @@ export class RoomSocketGateway
   }
 
   @SubscribeMessage('joinRoom')
-  public async joinRoom(client: Socket, room: string) {
+  public async joinRoom(client: Socket, payload: any) {
     console.log('join', client.id);
-    client.join(room);
-    client.broadcast.emit('joinedRoom', room);
+    client.join(payload.roomId);
+    const room = await this.roomModel.findOne({idroom: payload.roomId});
+    let data : any = room;
+    data.chat = room.chat.map( msg => {
+      if(msg.username == payload.username) {
+        return { message: msg.message, ownl: true }
+      } 
+    });
+    this.server.to(`${client.id}`).emit('joinRoom', data);
   }
 
   @SubscribeMessage('createRoom')
@@ -49,8 +59,10 @@ export class RoomSocketGateway
   }
 
   @SubscribeMessage('sendMessage')
-  public message(client: Socket, data: any): void {
-    console.log(data);
+  public async message(client: Socket, data: any) {
+    const room = await this.roomModel.findOne({idroom: data.roomId});
+    room.chat.push({message: data.body.message, username: data.body.username})
+    await room.save();
     client.broadcast.in(data.roomId).emit('recievedMessage', data.body);
   }
 

@@ -37,6 +37,8 @@ export class RoomService {
       viewers: input.viewers,
       public: input.public,
       password: input.password,
+      viewer: [],
+      chat: []
     });
     
     await createRoom.save();

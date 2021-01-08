@@ -30,6 +30,10 @@ export type IRoom = Room & mongoose.Document;
     @Prop()
     @ApiProperty({ type:[]})
     viewers: string[];
+
+    @Prop()
+    @ApiProperty({ type:[]})
+    chat: {username, message}[];
   }
 
 export const roomSchema = SchemaFactory.createForClass(Room);
