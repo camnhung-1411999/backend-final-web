@@ -35,15 +35,10 @@ export class RoomSocketGateway
 
   @SubscribeMessage('joinRoom')
   public async joinRoom(client: Socket, payload: any) {
-    console.log('join', client.id);
     client.join(payload.roomId);
     const room = await this.roomModel.findOne({idroom: payload.roomId});
     let data : any = room;
-    data.chat = room.chat.map( msg => {
-      if(msg.username == payload.username) {
-        return { message: msg.message, ownl: true }
-      } 
-    });
+    data.chat = room.chat.map( msg => ({ message: msg.message, ownl: msg.username == payload.username }));
     this.server.to(`${client.id}`).emit('joinRoom', data);
   }
 
