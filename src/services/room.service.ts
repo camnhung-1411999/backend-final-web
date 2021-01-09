@@ -2,12 +2,15 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IRoom, Room } from '../models/room.model';
 import { Model } from 'mongoose';
+import { IUser, User } from '../models/user.model';
 
 @Injectable()
 export class RoomService {
   constructor(
     @InjectModel(Room.name)
     private readonly roomModel: Model<IRoom>,
+    @InjectModel(User.name) private readonly userModel: Model<IUser>,
+
   ) {}
 
   async list() {
@@ -30,23 +33,24 @@ export class RoomService {
     return room;
   }
 
-  async create(input: Room) {
-    const createRoom = new this.roomModel({
-      player1: input.player1,
-      player2: input.player2,
-      viewers: input.viewers,
-      public: input.public,
-      password: input.password,
-      viewer: [],
-      chat: []
-    });
-    
-    await createRoom.save();
+  async create(input: any) {
+    const player1 = await this.userModel.findOne({user: input.player1});
+    if(player1) {
+      const createRoom = new this.roomModel({
+        player1: { "avatar": player1.image, "username": player1.user, "display_name": player1.name },
+        player2: input.player2,
+        viewers: input.viewers,
+        public: input.public,
+        password: input.password,
+        viewer: [],
+        chat: [],
+      });
+      await createRoom.save();
+      createRoom.idroom = createRoom.id.slice(19, createRoom.id.length);
+      await createRoom.save();
+      return createRoom;
+    }
 
-    createRoom.idroom = createRoom.id.slice(19, createRoom.id.length);
-
-    await createRoom.save();
-    return createRoom;
   }
 
   async join(input: any) {

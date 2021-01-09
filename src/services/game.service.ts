@@ -19,11 +19,10 @@ export class GameService {
     console.log('create game data', input);
     const createGame = new this.gameModel({
       roomId: input.roomId,
-      result: input.result,
+      board: input.board,
       player1: input.player1,
       player2: input.player1,
       datetime: createdDate,
-      chat: input.chat,
     });
     await createGame.save();
     return createGame;
