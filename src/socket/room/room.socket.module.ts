@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Game, gameSchema } from 'src/models/game.model';
+import { Game, gameSchema } from '../../models/game.model';
 import { RoomSocketGateway } from './room.socket.gateway';
 import { Room, roomSchema } from '../../models/room.model';
 
