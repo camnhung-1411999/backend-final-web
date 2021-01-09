@@ -55,24 +55,24 @@ export class RoomSocketGateway
   public async handleReady(client: Socket, payload: any) {
     const room : any = await this.roomModel.findOne({ idroom: payload.roomId });
 
-    if (room && room.player2?.username != payload.user.user && room.player1?.username != payload.user.user) {
-      if(!room.player2.username) {
-        room.player2 = {
-          'avatar': payload.user.image,
-          'username': payload.user.user,
-          'display_name': payload.user.name,
-        };
+    if (room ) {
+      if( room.player2?.username != payload.user.user && room.player1?.username != payload.user.user) {
+        if (!room.player2?.username) {
+          room.player2 = {
+            'avatar': payload.user.image,
+            'username': payload.user.user,
+            'display_name': payload.user.name,
+          };
+        } else {
+          room.player1 = {
+            'avatar': payload.user.image,
+            'username': payload.user.user,
+            'display_name': payload.user.name,
+          };
+        }
+        await room.save();
+        this.server.emit('ready', room);
       }
-      else
-      {
-        room.player1 = {
-          'avatar': payload.user.image,
-          'username': payload.user.user,
-          'display_name': payload.user.name,
-        };
-      }
-      await room.save();
-      this.server.emit('ready', room);
     }
   }
 
