@@ -29,7 +29,7 @@ export class UserController {
   ) {}
 
   @Get('/list')
-  getAllUsers(): any {
+  getAllUsers(@Request() req: any): any {
     return this.appService.getAllUsers();
   }
 
@@ -46,7 +46,7 @@ export class UserController {
   }
 
   @Get('/online')
-  getOnlineUsers(): any {
+  getOnlineUsers(@Request() req: any): any {
     return this.appService.getOnlineUsers();
   }
 
@@ -140,7 +140,7 @@ export class UserController {
     const image = await this.cloudinary.upload(file);
     const data = {
       user: req.user.user,
-      image: image.url,
+      image: image?.url,
       ...input,
     };
     return this.appService.update(data);
@@ -157,7 +157,7 @@ export class UserController {
   }
 
   @Get('/rank')
-  getRankUsers(): any {
+  getRankUsers(@Request() req: any): any {
     return this.appService.getListRank();
   }
 }

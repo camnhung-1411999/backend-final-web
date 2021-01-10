@@ -19,8 +19,11 @@ export class CloudinaryService {
     this.v2 = cloudinary.v2;
   }
   async upload(file: any) {
-    const infor = await this.v2.uploader.upload(file.path);
-    await unlinkAsync(file.path)
-    return infor;
+    if (file) {
+      const infor = await this.v2.uploader.upload(file.path);
+      await unlinkAsync(file.path)
+      return infor;
+    }
+   return null;
   }
 }
