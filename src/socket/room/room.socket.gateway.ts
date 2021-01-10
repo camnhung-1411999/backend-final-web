@@ -30,11 +30,6 @@ export class RoomSocketGateway
 
   private logger: Logger = new Logger('RoomGateway');
 
-  @SubscribeMessage('msgToServer')
-  public handleMessage(client: Socket, payload: any): Promise<WsResponse<any>> {
-    return this.server.to(payload.room).broadcast.emit('msgToClient', payload);
-  }
-
   @SubscribeMessage('joinRoom')
   public async joinRoom(client: Socket, payload: any) {
     client.join(payload.roomId);
@@ -47,16 +42,19 @@ export class RoomSocketGateway
         avatar: msg.avatar,
         display_name: msg.display_name,
       }));
+      // const game = await this.gameModel.find({ roomId: payload.roomId }).sort({ _id: -1 }).limit(1);
+      // if (game[0]) {
+      //   console.log(game[0])
       this.server.to(`${client.id}`).emit('joinRoom', data);
+      // }
     }
   }
 
   @SubscribeMessage('ready')
   public async handleReady(client: Socket, payload: any) {
-    const room : any = await this.roomModel.findOne({ idroom: payload.roomId });
-
-    if (room ) {
-      if( room.player2?.username != payload.user.user && room.player1?.username != payload.user.user) {
+    const room: any = await this.roomModel.findOne({ idroom: payload.roomId });
+    if (room) {
+      if (room.player2?.username != payload.user.user && room.player1?.username != payload.user.user) {
         if (!room.player2?.username) {
           room.player2 = {
             'avatar': payload.user.image,
@@ -71,14 +69,25 @@ export class RoomSocketGateway
           };
         }
         await room.save();
-        this.server.emit('ready', room);
+        this.server.in(payload.roomId).emit('ready', room);
       }
     }
   }
 
-  @SubscribeMessage('createRoom')
-  public createRoom(client: Socket, payload: any): void {
-    client.broadcast.emit('createRoom', payload);
+  @SubscribeMessage('playGame')
+  public async createGame(client: Socket, payload: any) {
+    const room: any = await this.roomModel.findOne({ idroom: payload.roomId });
+    if (room) {
+      const game = new this.gameModel({
+        roomId: room.idroom,
+        player1: room.player1.username,
+        player2: room.player2.username,
+        board: [],
+        datetime: new Date(),
+        playing: true,
+      });
+      await game.save();
+    }
   }
 
   @SubscribeMessage('leaveRoom')
