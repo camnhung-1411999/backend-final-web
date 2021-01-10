@@ -8,7 +8,7 @@ import {JwtAuthGuard} from '../interface/user.guard';
 export class HistoryController {
     constructor(private readonly appService: HistoryService) {}
     @Get('/list')
-    listAll(): any {
+    listAll(@Request() req: any): any {
         return this.appService.listAll();
     }
 

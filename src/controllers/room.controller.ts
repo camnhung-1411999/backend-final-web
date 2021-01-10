@@ -10,12 +10,12 @@ export class RoomController {
   constructor(private readonly appService: RoomService) {}
 
   @Get()
-  list(): any {
+  list(@Request() req: any): any {
     return this.appService.list();
   }
 
   @Get('/:id')
-  getRoom(@Param('id') idroom: string): any {
+  getRoom(@Param('id') idroom: string, @Request() req): any {
     return this.appService.getRoom(idroom);
   }
 
