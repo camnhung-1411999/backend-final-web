@@ -1,4 +1,3 @@
-// import { Module } from '@nestjs/common';
 import {MiddlewareConsumer, Module, NestModule, RequestMethod} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserController } from '../controllers/user.controller';
@@ -6,12 +5,9 @@ import { UserService } from '../services/user.service';
 import { User, userSchema } from '../models/user.model';
 import { Auth, authSchema } from '../models/auth.model';
 import * as bcrypt from 'bcrypt';
-// import { AuthService } from '../services/auth.service'
-// import {AuthMiddleware} from '../middlewares/auth.middleware';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from '../utils/constant';
-// import { LocalStrategy } from '../middlewares/local.strategy';
 import { JwtStrategy } from '../middlewares/auth.middleware';
 import {LocalAuthGuard} from '../interface/auth.guard';
 import { JwtAuthGuard} from '../interface//user.guard';
@@ -53,7 +49,6 @@ import { CloudinaryService } from '../services/cloudinary.service';
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '2h' },
     }),
   ],
   controllers: [UserController],

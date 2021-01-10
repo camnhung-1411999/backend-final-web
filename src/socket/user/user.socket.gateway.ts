@@ -20,7 +20,6 @@ export class UserSocketGateway
 
   @SubscribeMessage('online')
   handleOnline(client: Socket, payload: any): void {
-    console.log(payload.body)
     client.broadcast.emit('online', payload.body);
   }
 

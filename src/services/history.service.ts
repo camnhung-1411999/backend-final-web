@@ -16,7 +16,6 @@ export class HistoryService {
     }
     async create(input: History) {
         const createdDate = moment(Date.now()).format("DD-MM-YYYY HH:mm:ss");
-        console.log('create history data',input);
         // haven't handle input exist roomid
         const createHistory = new this.historyModel({
             roomId: input.roomId,
@@ -34,7 +33,6 @@ export class HistoryService {
     async findByUsername(input: string) {
         let username = input;
         const histories = await this.historyModel.find({ $or: [{ winner: username }, { loser: username }]});
-    console.log(histories);
         return histories;
 
     }

@@ -108,7 +108,6 @@ export class RoomSocketGateway
 
   @SubscribeMessage('play')
   public play(client: Socket, payload: any): void {
-    console.log('Data: ', payload);
     /*
       payload = {
         roomId,

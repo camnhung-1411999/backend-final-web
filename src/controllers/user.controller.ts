@@ -39,6 +39,12 @@ export class UserController {
     return this.appService.find(req.user.user);
   }
 
+  @Get('/refresh')
+  @UseGuards(JwtAuthGuard)
+  refreshToken(@Request() req): any {
+    return this.appService.refreshToken(req.user.user)
+  }
+
   @Get('/online')
   getOnlineUsers(): any {
     return this.appService.getOnlineUsers();

@@ -2,7 +2,7 @@ import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { IUser, User } from '../models/user.model';
 import { Model } from 'mongoose';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -11,7 +11,7 @@ export class UserService {
     private readonly userModel: Model<IUser>,
 
     private jwtService: JwtService,
-  ) {}
+  ) { }
   async find(user: string) {
     const iuser = await this.userModel.findOne({
       user,
@@ -101,14 +101,19 @@ export class UserService {
       find.password = input.password;
       await find.save();
       const payload = { user: input.user };
-
+      const optionAccess: JwtSignOptions = {
+        expiresIn: '2min'
+      }
+      const optionRefresh: JwtSignOptions = {
+        expiresIn: '2h'
+      }
       return {
         name: find.name,
         user: find.user,
         image: find.image,
         role: find.role,
-        accessToken: this.jwtService.sign(payload),
-        refreshToken: this.jwtService.sign(payload),
+        accessToken: this.jwtService.sign(payload, optionAccess),
+        refreshToken: this.jwtService.sign(payload, optionRefresh),
       };
       // return this.authModel.findOne(
       //   { user: find.id }
@@ -142,6 +147,36 @@ export class UserService {
         422,
       );
     }
+  }
+
+  async refreshToken(input: string) {
+    const find = await this.userModel.findOne({
+      user: input,
+    });
+    if (!find) {
+      throw new HttpException(
+        {
+          status: 404,
+          error: 'USER_NOT_FOUND',
+        },
+        404,
+      );
+    }
+    const payload = { user: input };
+      const optionAccess: JwtSignOptions = {
+        expiresIn: '2min'
+      }
+      const optionRefresh: JwtSignOptions = {
+        expiresIn: '2h'
+      }
+      return {
+        name: find.name,
+        user: find.user,
+        image: find.image,
+        role: find.role,
+        accessToken: this.jwtService.sign(payload, optionAccess),
+        refreshToken: this.jwtService.sign(payload, optionRefresh),
+      };
   }
 
   async update(input: any) {

@@ -16,7 +16,6 @@ export class GameService {
   }
   async create(input: Game) {
     const createdDate = moment(Date.now()).format('DD-MM-YYYY HH:mm:ss');
-    console.log('create game data', input);
     const createGame = new this.gameModel({
       roomId: input.roomId,
       board: input.board,
@@ -33,7 +32,6 @@ export class GameService {
     const histories = await this.gameModel.find({
       $or: [{ player1: username }, { player2: username }],
     });
-    console.log(histories);
     return histories;
   }
 
