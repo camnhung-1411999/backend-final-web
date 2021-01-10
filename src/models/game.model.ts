@@ -25,7 +25,11 @@ export class Game {
 
     @Prop()
     @ApiProperty()
-    datetime: string;
+    datetime: Date;
+
+    @Prop()
+    @ApiProperty()
+    playing: boolean;
 
 }
 export const gameSchema = SchemaFactory.createForClass(Game);
