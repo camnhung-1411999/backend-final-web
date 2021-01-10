@@ -102,10 +102,10 @@ export class UserService {
       await find.save();
       const payload = { user: input.user };
       const optionAccess: JwtSignOptions = {
-        expiresIn: '2min'
+        expiresIn: '2h'
       }
       const optionRefresh: JwtSignOptions = {
-        expiresIn: '2h'
+        expiresIn: '10day'
       }
       return {
         name: find.name,
@@ -164,10 +164,10 @@ export class UserService {
     }
     const payload = { user: input };
       const optionAccess: JwtSignOptions = {
-        expiresIn: '2min'
+        expiresIn: '2h'
       }
       const optionRefresh: JwtSignOptions = {
-        expiresIn: '2h'
+        expiresIn: '10day'
       }
       return {
         name: find.name,
