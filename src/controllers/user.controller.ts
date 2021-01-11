@@ -1,4 +1,5 @@
 import {
+  Param,
   Body,
   Controller,
   Get,
@@ -38,6 +39,12 @@ export class UserController {
   me(@Request() req): any {
     return this.appService.find(req.user.user);
   }
+
+  @Get('/:id')
+  getUserById(@Param('id') id: string): Promise<User> {
+    return this.appService.findSingleById(id);
+  }
+
 
   @Get('/refresh')
   @UseGuards(JwtAuthGuard)
@@ -83,6 +90,11 @@ export class UserController {
 
   @Put('/resetpassword')
   password(@Body() input: any): Promise<User> {
+    return this.appService.update(input);
+  }
+
+  @Put('/block')
+  blockUser(@Body() input: any): Promise<User> {
     return this.appService.update(input);
   }
 
