@@ -96,6 +96,12 @@ export class RoomSocketGateway
     client.emit('leftRoom', room);
   }
 
+  @SubscribeMessage('createRoom')
+  public createRoom(client: Socket, payload: any): void {
+    console.log(payload)
+    client.broadcast.emit('createRoom', payload);
+  }
+
   @SubscribeMessage('sendMessage')
   public async message(client: Socket, data: any) {
     const room = await this.roomModel.findOne({ idroom: data.roomId });
