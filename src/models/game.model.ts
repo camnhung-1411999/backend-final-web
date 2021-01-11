@@ -13,7 +13,7 @@ export class Game {
 
     @Prop()
     @ApiProperty()
-    board: [];
+    board: {value, index} [];
 
     @Prop({type: String, ref: User.name})
     @ApiProperty()
