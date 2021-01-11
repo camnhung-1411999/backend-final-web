@@ -5,50 +5,50 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type IUser = User & Document;
 
-  @Schema({ timestamps: true })
-  export class User {
-    @Prop()
-    @ApiProperty()
-    user: string;
+@Schema({ timestamps: true })
+export class User {
+  @Prop()
+  @ApiProperty()
+  user: string;
 
-    @Prop()
-    @ApiProperty()
-    password: string;
+  @Prop()
+  @ApiProperty()
+  password: string;
 
-    @Prop()
-    @ApiProperty()
-    name: string;
+  @Prop()
+  @ApiProperty()
+  name: string;
 
-    @Prop()
-    @ApiProperty()
-    role: string;
+  @Prop()
+  @ApiProperty()
+  role: string;
 
-    @Prop()
-    @ApiProperty()
-    image: string;
+  @Prop()
+  @ApiProperty()
+  image: string;
 
-    @Prop()
-    @ApiProperty()
-    status: boolean;
+  @Prop()
+  @ApiProperty()
+  status: boolean;
 
-    @Prop()
-    @ApiProperty()
-    totalMatch: number;
+  @Prop()
+  @ApiProperty()
+  totalMatch: number;
 
-    @Prop()
-    @ApiProperty()
-    wins: number;
+  @Prop()
+  @ApiProperty()
+  wins: number;
 
-    @Prop()
-    @ApiProperty()
-    cups: number;
+  @Prop()
+  @ApiProperty()
+  cups: number;
 
-    @Prop()
-    @ApiProperty()
-    block: boolean;
+  @Prop()
+  @ApiProperty()
+  block: boolean;
 
-    comparePassword: ComparePasswordFunction;
-  }
+  comparePassword: ComparePasswordFunction;
+}
 
 type ComparePasswordFunction = (
   this: IUser,

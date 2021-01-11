@@ -17,7 +17,7 @@ export class UserService {
       user,
     });
     if (!iuser) {
-      throw new HttpException('User not found.', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('USER_NOT_FOUND', HttpStatus.UNAUTHORIZED);
     }
     return iuser;
   }
