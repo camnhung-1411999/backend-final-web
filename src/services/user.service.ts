@@ -273,7 +273,7 @@ export class UserService {
   }
 
   async findSingleById(id) {
-    const find = await this.userModel.findOne({
+    const find = await this.userModel.findById({
       _id: id,
     });
     if (!find) {

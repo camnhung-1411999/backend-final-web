@@ -25,8 +25,7 @@ export class RoomSocketGateway
     @InjectModel(Game.name) private readonly gameModel: Model<IGame>,
     @InjectModel(Room.name) private readonly roomModel: Model<IRoom>,
     @InjectModel(User.name) private readonly userModel: Model<IUser>,
-  ) {
-  }
+  ) {}
 
   private logger: Logger = new Logger('RoomGateway');
 
@@ -34,19 +33,27 @@ export class RoomSocketGateway
   public async joinRoom(client: Socket, payload: any) {
     client.join(payload.roomId);
     const room = await this.roomModel.findOne({ idroom: payload.roomId });
+    const game = await this.gameModel
+      .find({ roomId: payload.roomId })
+      .sort({ _id: -1 })
+      .limit(1);
     if (room) {
       let data: any = room;
-      data.chat = room.chat.map(msg => ({
+      data.chat = room.chat.map((msg) => ({
         message: msg.message,
         ownl: msg.username == payload.user.user,
         avatar: msg.avatar,
         display_name: msg.display_name,
       }));
-      // const game = await this.gameModel.find({ roomId: payload.roomId }).sort({ _id: -1 }).limit(1);
-      // if (game[0]) {
-      //   console.log(game[0])
       this.server.to(`${client.id}`).emit('joinRoom', data);
-      // }
+      const board = {
+        board: game.length > 0 ? game[0].board : null,
+        playing: game.length > 0 ? game[0].playing : false,
+        datetime: game.length > 0 ? game[0].datetime : null,
+        player1: game.length > 0 ? game[0].player1 : '',
+        player2: game.length > 0 ? game[0].player2 : '',
+      };
+      this.server.to(`${client.id}`).emit('createBoard', board);
     }
   }
 
@@ -54,18 +61,21 @@ export class RoomSocketGateway
   public async handleReady(client: Socket, payload: any) {
     const room: any = await this.roomModel.findOne({ idroom: payload.roomId });
     if (room) {
-      if (room.player2?.username != payload.user.user && room.player1?.username != payload.user.user) {
+      if (
+        room.player2?.username != payload.user.user &&
+        room.player1?.username != payload.user.user
+      ) {
         if (!room.player2?.username) {
           room.player2 = {
-            'avatar': payload.user.image,
-            'username': payload.user.user,
-            'display_name': payload.user.name,
+            avatar: payload.user.image,
+            username: payload.user.user,
+            display_name: payload.user.name,
           };
         } else {
           room.player1 = {
-            'avatar': payload.user.image,
-            'username': payload.user.user,
-            'display_name': payload.user.name,
+            avatar: payload.user.image,
+            username: payload.user.user,
+            display_name: payload.user.name,
           };
         }
         await room.save();
@@ -96,6 +106,11 @@ export class RoomSocketGateway
     client.emit('leftRoom', room);
   }
 
+  @SubscribeMessage('createRoom')
+  public createRoom(client: Socket, payload: any): void {
+    client.broadcast.emit('createRoom', payload);
+  }
+
   @SubscribeMessage('sendMessage')
   public async message(client: Socket, data: any) {
     const room = await this.roomModel.findOne({ idroom: data.roomId });
@@ -115,15 +130,24 @@ export class RoomSocketGateway
     client.emit('success');
   }
 
+  @SubscribeMessage('endGame')
+  public endGame(client: Socket, payload: any): void {
+    // client.broadcast.emit('createRoom', payload);
+  }
+
   @SubscribeMessage('play')
-  public play(client: Socket, payload: any): void {
-    /*
-      payload = {
-        roomId,
-        index, 
-        chessman,
-      }
-    */
+  public async play(client: Socket, payload: any) {
+    const data = await this.gameModel
+      .find({ roomId: payload.roomId })
+      .sort({ _id: -1 })
+      .limit(1);
+    const game = data[0];
+
+    game.board.push({
+      value: payload.value,
+      index: payload.index,
+    });
+    await game.save();
     client.to(payload.roomId).emit('play', payload);
   }
 
