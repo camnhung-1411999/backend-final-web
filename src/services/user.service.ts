@@ -62,6 +62,7 @@ export class UserService {
       cups: input.cups ? input.cups : 0,
       status: false,
       image: null,
+      block: false,
     });
     await createdUser.save();
 
@@ -77,6 +78,15 @@ export class UserService {
         {
           status: 404,
           error: 'USER_NOT_FOUND',
+        },
+        404,
+      );
+    }
+    if (find.block) {
+      throw new HttpException(
+        {
+          status: 404,
+          error: 'ACCOUNT_HAS_BEEN_BLOCKED',
         },
         404,
       );
@@ -112,6 +122,7 @@ export class UserService {
         user: find.user,
         image: find.image,
         role: find.role,
+        block: find.block,
         accessToken: this.jwtService.sign(payload, optionAccess),
         refreshToken: this.jwtService.sign(payload, optionRefresh),
       };
@@ -163,20 +174,21 @@ export class UserService {
       );
     }
     const payload = { user: input };
-      const optionAccess: JwtSignOptions = {
-        expiresIn: '2h'
-      }
-      const optionRefresh: JwtSignOptions = {
-        expiresIn: '10day'
-      }
-      return {
-        name: find.name,
-        user: find.user,
-        image: find.image,
-        role: find.role,
-        accessToken: this.jwtService.sign(payload, optionAccess),
-        refreshToken: this.jwtService.sign(payload, optionRefresh),
-      };
+    const optionAccess: JwtSignOptions = {
+      expiresIn: '2h'
+    }
+    const optionRefresh: JwtSignOptions = {
+      expiresIn: '10day'
+    }
+    return {
+      name: find.name,
+      user: find.user,
+      image: find.image,
+      role: find.role,
+      block: find.block,
+      accessToken: this.jwtService.sign(payload, optionAccess),
+      refreshToken: this.jwtService.sign(payload, optionRefresh),
+    };
   }
 
   async update(input: any) {
@@ -218,6 +230,7 @@ export class UserService {
       wins: input.wins ? input.wins : iuser.wins,
       cups: input.cups ? input.cups : iuser.cups,
       image: input.image ? input.image : iuser.image,
+      block: (input.block !== null) ? input.block : iuser.block,
     };
     const result = await this.userModel.findOneAndUpdate(
       {
@@ -257,5 +270,24 @@ export class UserService {
       .map((user) => ({ name: user.name, image: user.image, cups: user.cups }))
       .sort((user1, user2) => user2.cups - user1.cups);
     return listUser;
+  }
+
+  async findSingleById(id) {
+    const find = await this.userModel.findOne({
+      _id: <Object>id,
+    });
+    if (!find) {
+      throw new HttpException(
+        {
+          status: 404,
+          error: 'USER_NOT_FOUND',
+        },
+        404,
+      );
+    }
+    else {
+      return find;
+    }
+
   }
 }

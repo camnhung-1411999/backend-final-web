@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type IUser = User & Document;
 
-  @Schema()
+  @Schema({ timestamps: true })
   export class User {
     @Prop()
     @ApiProperty()
@@ -42,6 +42,10 @@ export type IUser = User & Document;
     @Prop()
     @ApiProperty()
     cups: number;
+
+    @Prop()
+    @ApiProperty()
+    block: boolean;
 
     comparePassword: ComparePasswordFunction;
   }
