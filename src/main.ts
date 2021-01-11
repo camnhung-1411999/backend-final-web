@@ -18,8 +18,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.useStaticAssets(join(__dirname, '..', 'static'));
 
-  await app.listen(process.env.PORT || 8000, '0.0.0.0', () => {
-    logger.log('Listening on port 8000');
-  });
+  await app.listen(4100);
 }
 bootstrap();
