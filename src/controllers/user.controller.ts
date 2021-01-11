@@ -40,7 +40,7 @@ export class UserController {
     return this.appService.find(req.user.user);
   }
 
-  @Get('/:id')
+  @Get('/getUserById/:id')
   getUserById(@Param('id') id: string): Promise<User> {
     return this.appService.findSingleById(id);
   }

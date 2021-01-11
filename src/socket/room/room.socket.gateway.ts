@@ -45,25 +45,15 @@ export class RoomSocketGateway
         avatar: msg.avatar,
         display_name: msg.display_name,
       }));
-
-      const value = {
-        chat: data.chat,
-        viewers: data.viewers,
-        player1: data.player1,
-        player2: data.player2,
-        idroom: data.idroom,
-        game: game[0],
-      };
       this.server.to(`${client.id}`).emit('joinRoom', data);
       const board = {
-        board: game?game[0].board: null,
-        playing: game?game[0].playing: false,
-        datetime:  game?game[0].datetime: null,
-        player1: game?game[0].player1: "",
-        player2: game?game[0].player2: "",
+        board: game.length > 0 ? game[0].board : null,
+        playing: game.length > 0 ? game[0].playing : false,
+        datetime: game.length > 0 ? game[0].datetime : null,
+        player1: game.length > 0 ? game[0].player1 : '',
+        player2: game.length > 0 ? game[0].player2 : '',
       };
       this.server.to(`${client.id}`).emit('createBoard', board);
-
     }
   }
 
@@ -156,7 +146,7 @@ export class RoomSocketGateway
     game.board.push({
       value: payload.value,
       index: payload.index,
-    })
+    });
     await game.save();
     client.to(payload.roomId).emit('play', payload);
   }

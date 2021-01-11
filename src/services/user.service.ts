@@ -273,8 +273,8 @@ export class UserService {
   }
 
   async findSingleById(id) {
-    const find = await this.userModel.findOne({
-      _id: <Object>id,
+    const find = await this.userModel.findById({
+      _id: id,
     });
     if (!find) {
       throw new HttpException(
