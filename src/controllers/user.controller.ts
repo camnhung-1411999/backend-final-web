@@ -95,20 +95,15 @@ export class UserController {
   @Post('/social')
   loginSocial(@Body() input: User): Promise<any> {
     return this.appService
-      .postUsers(input)
+      .create (input)
       .then(async (data) => {
-        const user = {
-          user: data.user,
-          password: data.password,
-          type: 'social',
-        };
-        await this.appService.login(user).then((iuser) => {
+        await this.appService.refreshToken(data.user).then((iuser) => {
           return iuser;
         });
       })
       .catch(() => {
         return this.appService
-          .login({ user: input.user, password: input.password, type: 'social' })
+          .refreshToken(input.user)
           .then((iuser) => {
             return iuser;
           });

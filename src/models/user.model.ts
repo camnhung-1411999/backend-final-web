@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export type IUser = User & Document;
 
-  @Schema()
+  @Schema({ timestamps: true })
   export class User {
     @Prop()
     @ApiProperty()
