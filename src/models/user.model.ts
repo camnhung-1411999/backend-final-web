@@ -43,6 +43,10 @@ export type IUser = User & Document;
     @ApiProperty()
     cups: number;
 
+    @Prop()
+    @ApiProperty()
+    block: boolean;
+
     comparePassword: ComparePasswordFunction;
   }
 
