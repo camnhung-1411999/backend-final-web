@@ -34,6 +34,10 @@ export type IRoom = Room & mongoose.Document;
     @Prop()
     @ApiProperty({ type:[]})
     chat: {username, message, avatar, display_name}[];
+
+    @Prop()
+    @ApiProperty()
+    isPlay: boolean;
   }
 
 export const roomSchema = SchemaFactory.createForClass(Room);

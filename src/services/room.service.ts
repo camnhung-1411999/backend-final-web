@@ -14,12 +14,12 @@ export class RoomService {
   ) {}
 
   async list() {
-    return this.roomModel.find();
+    return this.roomModel.find({isPlay: true});
   }
 
   async getRoom(id: string) {
     const room = await this.roomModel.findOne({
-      idroom:id
+      idroom:id, isPlay: true
     });
     if (!room) {
       throw new HttpException(
@@ -44,6 +44,7 @@ export class RoomService {
         password: input.password,
         viewer: [],
         chat: [],
+        isPlay: true,
       });
       await createRoom.save();
       createRoom.idroom = createRoom.id.slice(19, createRoom.id.length);

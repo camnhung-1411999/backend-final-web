@@ -15,6 +15,8 @@ import { IGame, Game } from '../../models/game.model';
 import { Model } from 'mongoose';
 import { IRoom, Room } from '../../models/room.model';
 import { IUser, User } from '../../models/user.model';
+import { History, IHistory } from 'src/models/history.model';
+import * as moment from 'moment';
 
 @WebSocketGateway()
 export class RoomSocketGateway
@@ -25,6 +27,7 @@ export class RoomSocketGateway
     @InjectModel(Game.name) private readonly gameModel: Model<IGame>,
     @InjectModel(Room.name) private readonly roomModel: Model<IRoom>,
     @InjectModel(User.name) private readonly userModel: Model<IUser>,
+    @InjectModel(History.name) private readonly historyModel: Model<IHistory>,
   ) {}
 
   private logger: Logger = new Logger('RoomGateway');
@@ -97,6 +100,7 @@ export class RoomSocketGateway
         playing: true,
       });
       await game.save();
+      this.server.in(payload.roomId).emit("playGame", game);
     }
   }
 
@@ -130,13 +134,59 @@ export class RoomSocketGateway
     client.emit('success');
   }
 
-  @SubscribeMessage('endGame')
-  public endGame(client: Socket, payload: any): void {
-    // client.broadcast.emit('createRoom', payload);
+  @SubscribeMessage('win')
+  public async endGame(client: Socket, payload: any) {
+    const data = await this.gameModel
+      .find({ roomId: payload.roomId })
+      .sort({ _id: -1 })
+      .limit(1);
+    const game = data[0];
+
+    game.playing = false;
+    await game.save();
+    const createdDate = moment(Date.now()).format('DD-MM-YYYY HH:mm:ss');
+    const history = new this.historyModel({
+      roomId: payload.roomId,
+      winner: payload.user.user,
+      result: game.board,
+      loser: payload.user.user === game.player1 ? game.player2 : game.player1,
+      datetime: createdDate,
+    });
+    await history.save();
+
+    const player1 = await this.userModel.findOne({ user: payload.user.user });
+
+    const player2 = await this.userModel.findOne({
+      user: payload.user.user === game.player1 ? game.player2 : game.player1,
+    });
+
+    player1.totalMatch += 1;
+    player2.totalMatch += 1;
+
+    if (player1.cups > player2.cups) {
+      player1.cups += 5;
+      player1.cups -= 5;
+    } else {
+      player1.cups += 10;
+      player1.cups -= 10;
+    }
+
+    await player1.save();
+    await player2.save();
+
+    if (player1 && player2) {
+      const endGame = {
+        winner: player1.user,
+        loser: player2.user,
+      };
+
+      client.in(payload.roomId).emit('endGame', endGame);
+    }
   }
 
   @SubscribeMessage('play')
   public async play(client: Socket, payload: any) {
+    console.log("ssssssssssss")
     const data = await this.gameModel
       .find({ roomId: payload.roomId })
       .sort({ _id: -1 })
