@@ -27,10 +27,5 @@ export class History {
     @ApiProperty()
     datetime: string;
 
-    @Prop()
-    @ApiProperty()
-    chat: [];
-
-
 }
 export const historySchema = SchemaFactory.createForClass(History);

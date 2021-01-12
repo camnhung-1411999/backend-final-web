@@ -18,6 +18,6 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
   app.useStaticAssets(join(__dirname, '..', 'static'));
 
-  await app.listen(4100);
+  await app.listen(8000);
 }
 bootstrap();
