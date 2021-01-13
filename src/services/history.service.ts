@@ -18,38 +18,7 @@ export class HistoryService {
     async listAll() {
         return this.historyModel.find();
     }
-    async create(input: History) {
-        const createdDate = moment(Date.now()).format("DD-MM-YYYY HH:mm:ss");
-        const findWinner = await this.userModel.findOne({
-            user: input.winner,
-        });
-        
-        if(findWinner){
-            findWinner.totalMatch = findWinner.totalMatch + 1;
-            findWinner.cups = findWinner.cups + 1;
-            findWinner.wins = findWinner.wins + 1;
-        }
 
-        const findLoser = await this.userModel.findOne({
-            user: input.loser,
-        });
-        
-        if(findLoser){
-            findLoser.totalMatch = findLoser.totalMatch + 1;
-            findLoser.cups = findLoser.cups - 1;
-        }
-
-        // haven't handle input exist roomid
-        const createHistory = new this.historyModel({
-            roomId: input.roomId,
-            result: input.result,
-            winner: input.winner,
-            loser: input.loser,
-            datetime: createdDate,
-        });
-        await createHistory.save();
-        return createHistory;
-    }
 
     async findByUsername(input: string) {
         let username = input;
@@ -58,7 +27,7 @@ export class HistoryService {
 
     }
 
-    async findSingByID(input: string) {
+    async findByID(input: string) {
         let _id = input;
         const history = await this.historyModel.findOne({_id});
         return history;
