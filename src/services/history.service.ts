@@ -46,6 +46,7 @@ export class HistoryService {
             winner: input.winner,
             loser: input.loser,
             datetime: createdDate,
+            draw : input.draw,
         });
         await createHistory.save();
         return createHistory;

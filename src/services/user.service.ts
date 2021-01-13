@@ -272,9 +272,9 @@ export class UserService {
     return listUser;
   }
 
-  async findSingleById(id) {
-    const find = await this.userModel.findById({
-      _id: id,
+  async findSingleByUser(user) {
+    const find = await this.userModel.findOne({
+      user:user,
     });
     if (!find) {
       throw new HttpException(
@@ -286,6 +286,7 @@ export class UserService {
       );
     }
     else {
+      console.log('=============',find)
       return find;
     }
 
