@@ -19,6 +19,10 @@ export class History {
     @ApiProperty()
     winner: string;
 
+    @Prop({type: String})
+    @ApiProperty()
+    draw: string;
+
     @Prop({type: String, ref: User.name})
     @ApiProperty()
     loser: string;
