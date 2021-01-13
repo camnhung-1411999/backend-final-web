@@ -29,7 +29,7 @@ export type IRoom = Room & mongoose.Document;
 
     @Prop()
     @ApiProperty({ type:[]})
-    viewers: string[];
+    viewers: {username, avatar, display_name}[];
 
     @Prop()
     @ApiProperty({ type:[]})

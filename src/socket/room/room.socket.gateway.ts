@@ -41,8 +41,6 @@ export class RoomSocketGateway
       .sort({ _id: -1 })
       .limit(1);
     if (room) {
-      // room.viewers.includes(payload.user)
-
       let data: any = room;
       data.chat = room.chat.map((msg) => ({
         message: msg.message,
@@ -59,6 +57,16 @@ export class RoomSocketGateway
         player2: game.length > 0 ? game[0].player2 : '',
       };
       this.server.to(`${client.id}`).emit('createBoard', board);
+      if (
+        !room.viewers.some((viewer) => viewer.username === payload.user.user)
+      ) {
+        room.viewers.push({
+          username: payload.user.user,
+          avatar: payload.user.image,
+          display_name: payload.user.name,
+        });
+        await room.save();
+      }
     }
   }
 
@@ -140,6 +148,72 @@ export class RoomSocketGateway
     client.emit('success');
   }
 
+  @SubscribeMessage('close')
+  public close(client: Socket, data: any): void {
+  }
+
+  @SubscribeMessage('drawRequest')
+  public drawRequest(client: Socket, payload: any): void {
+    client
+      .to(payload.roomId)
+      .emit('drawRequest', {
+        user1: payload.user.user,
+        name: payload.user.name,
+        user2:
+          payload.user.user === payload.game.player1
+            ? payload.game.player2
+            : payload.game.player1,
+      });
+  }
+
+  @SubscribeMessage('draw')
+  public async draw(client: Socket, payload: any) {
+    this.server.to(payload.roomId).emit('draw', payload.game);
+    const data = await this.gameModel
+      .find({ roomId: payload.roomId })
+      .sort({ _id: -1 })
+      .limit(1);
+    const game = data[0];
+    if (game.playing) {
+      game.playing = false;
+      await game.save();
+      const createdDate = moment(Date.now()).format('DD-MM-YYYY HH:mm:ss');
+      const history = new this.historyModel({
+        roomId: payload.roomId,
+        winner: payload.user.user,
+        result: game.board,
+        loser: payload.user.user === game.player1 ? game.player2 : game.player1,
+        datetime: createdDate,
+        draw: true,
+      });
+      await history.save();
+
+      const player1 = await this.userModel.findOne({ user: payload.user.user });
+
+      const player2 = await this.userModel.findOne({
+        user: payload.user.user === game.player1 ? game.player2 : game.player1,
+      });
+
+      player1.totalMatch += 1;
+      player2.totalMatch += 1;
+
+      await this.userModel.update(
+        { _id: player1._id },
+        {
+          cups: player1.cups,
+          totalMatch: player1.totalMatch,
+        },
+      );
+      await this.userModel.update(
+        { _id: player2._id },
+        {
+          cups: player2.cups,
+          totalMatch: player2.totalMatch,
+        },
+      );
+    }
+  }
+
   @SubscribeMessage('newGame')
   public async newGame(client: Socket, payload: any) {
     const room: any = await this.roomModel.findOne({ idroom: payload.roomId });
@@ -162,10 +236,13 @@ export class RoomSocketGateway
   public async endGame(client: Socket, payload: any) {
     client.to(payload.roomId).emit('play', payload.play);
     const endGame = {
-      winner: payload.user,
-      loser: payload.game.player1 !== payload.user.user ? payload.game.player1: payload.game.player2,
+      winner: payload.user.user,
+      loser:
+        payload.game.player1 !== payload.user.user
+          ? payload.game.player1
+          : payload.game.player2,
       winnerName: payload.user.name,
-      admin: payload.game.player1 === payload.user.user ? payload.game.player1: payload.game.player2,
+      admin: payload.game.player1,
     };
 
     this.server.in(payload.roomId).emit('endGame', endGame);
@@ -189,6 +266,7 @@ export class RoomSocketGateway
         result: game.board,
         loser: payload.user.user === game.player1 ? game.player2 : game.player1,
         datetime: createdDate,
+        draw: false,
       });
       await history.save();
 
@@ -230,6 +308,7 @@ export class RoomSocketGateway
   @SubscribeMessage('play')
   public async play(client: Socket, payload: any) {
     client.to(payload.roomId).emit('play', payload);
+    this.server.to(client.id).emit('resetTime', payload.user);
     const data = await this.gameModel
       .find({ roomId: payload.roomId })
       .sort({ _id: -1 })
@@ -240,7 +319,81 @@ export class RoomSocketGateway
       value: payload.value,
       index: payload.index,
     });
+    game.datetime = new Date();
     await game.save();
+  }
+
+  @SubscribeMessage('endTime')
+  public async endTime(client: Socket, payload: any) {
+    const playerWin = await this.userModel.findOne({
+      user:
+        payload.user.user === payload.game.player1
+          ? payload.game.player2
+          : payload.game.player1,
+    });
+
+    if (playerWin) {
+      const endGame = {
+        winner: playerWin.user,
+        loser: payload.user.user,
+        winnerName: playerWin.name,
+        admin: payload.game.player1,
+      };
+
+      this.server.in(payload.roomId).emit('endGame', endGame);
+
+      const data = await this.gameModel
+        .find({ roomId: payload.roomId })
+        .sort({ _id: -1 })
+        .limit(1);
+      const game = data[0];
+      if (game.playing) {
+        game.playing = false;
+
+        await game.save();
+        const createdDate = moment(Date.now()).format('DD-MM-YYYY HH:mm:ss');
+        const history = new this.historyModel({
+          roomId: payload.roomId,
+          winner: playerWin.user,
+          result: game.board,
+          loser: payload.user.user,
+          datetime: createdDate,
+          draw: false,
+        });
+        await history.save();
+
+        const player1 = await this.userModel.findOne({
+          user: payload.user.user,
+        });
+
+        player1.totalMatch += 1;
+        playerWin.wins += 1;
+        playerWin.totalMatch += 1;
+
+        if (playerWin.cups > player1.cups) {
+          playerWin.cups += 5;
+          player1.cups -= 5;
+        } else {
+          playerWin.cups += 10;
+          player1.cups -= 10;
+        }
+
+        await this.userModel.update(
+          { _id: player1._id },
+          {
+            cups: player1.cups,
+            totalMatch: player1.totalMatch,
+          },
+        );
+        await this.userModel.update(
+          { _id: playerWin._id },
+          {
+            cups: playerWin.cups,
+            totalMatch: playerWin.totalMatch,
+          },
+        );
+      }
+    }
   }
 
   public afterInit(server: Server): void {
