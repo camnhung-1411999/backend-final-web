@@ -117,6 +117,11 @@ export class RoomSocketGateway
     client.broadcast.emit('createRoom', payload);
   }
 
+  @SubscribeMessage('invite')
+  public inviteUser(client: Socket, payload: any): void {
+    this.server.emit('invite', payload);
+  }
+
   @SubscribeMessage('sendMessage')
   public async message(client: Socket, data: any) {
     client.broadcast.in(data.roomId).emit('recievedMessage', data.body);
