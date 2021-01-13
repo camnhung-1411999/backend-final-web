@@ -41,6 +41,8 @@ export class RoomSocketGateway
       .sort({ _id: -1 })
       .limit(1);
     if (room) {
+      // room.viewers.includes(payload.user)
+
       let data: any = room;
       data.chat = room.chat.map((msg) => ({
         message: msg.message,
@@ -99,8 +101,8 @@ export class RoomSocketGateway
         datetime: new Date(),
         playing: true,
       });
-      await game.save();
       this.server.in(payload.roomId).emit('playGame', game);
+      await game.save();
     }
   }
 
@@ -117,6 +119,7 @@ export class RoomSocketGateway
 
   @SubscribeMessage('sendMessage')
   public async message(client: Socket, data: any) {
+    client.broadcast.in(data.roomId).emit('recievedMessage', data.body);
     const room = await this.roomModel.findOne({ idroom: data.roomId });
     room.chat.push({
       message: data.body.message,
@@ -125,8 +128,6 @@ export class RoomSocketGateway
       display_name: data.body.display_name,
     });
     await room.save();
-
-    client.broadcast.in(data.roomId).emit('recievedMessage', data.body);
   }
 
   @SubscribeMessage('confirm')
@@ -134,8 +135,36 @@ export class RoomSocketGateway
     client.emit('success');
   }
 
+  @SubscribeMessage('newGame')
+  public async newGame(client: Socket, payload: any) {
+    const room: any = await this.roomModel.findOne({ idroom: payload.roomId });
+    if (room) {
+      const game = new this.gameModel({
+        roomId: room.idroom,
+        player1: room.player1.username,
+        player2: room.player2.username,
+        board: [],
+        datetime: new Date(),
+        playing: true,
+      });
+      this.server.in(payload.roomId).emit('playGame', game);
+      this.server.in(payload.roomId).emit('newGame', game);
+      await game.save();
+    }
+  }
+
   @SubscribeMessage('win')
   public async endGame(client: Socket, payload: any) {
+    client.to(payload.roomId).emit('play', payload.play);
+    const endGame = {
+      winner: payload.user,
+      loser: payload.game.player1 !== payload.user.user ? payload.game.player1: payload.game.player2,
+      winnerName: payload.user.name,
+      admin: payload.game.player1 === payload.user.user ? payload.game.player1: payload.game.player2,
+    };
+
+    this.server.in(payload.roomId).emit('endGame', endGame);
+
     const data = await this.gameModel
       .find({ roomId: payload.roomId })
       .sort({ _id: -1 })
@@ -143,6 +172,10 @@ export class RoomSocketGateway
     const game = data[0];
     if (game.playing) {
       game.playing = false;
+      game.board.push({
+        value: payload.play.value,
+        index: payload.play.index,
+      });
       await game.save();
       const createdDate = moment(Date.now()).format('DD-MM-YYYY HH:mm:ss');
       const history = new this.historyModel({
@@ -161,35 +194,37 @@ export class RoomSocketGateway
       });
 
       player1.totalMatch += 1;
+      player1.wins += 1;
       player2.totalMatch += 1;
 
       if (player1.cups > player2.cups) {
         player1.cups += 5;
-        player1.cups -= 5;
+        player2.cups -= 5;
       } else {
         player1.cups += 10;
-        player1.cups -= 10;
+        player2.cups -= 10;
       }
 
-      await player1.save();
-      await player2.save();
-
-      if (player1 && player2) {
-        const endGame = {
-          winner: player1.user,
-          loser: player2.user,
-          winnerName: payload.user.name,
-          admin: game.player1,
-        };
-
-        this.server.in(payload.roomId).emit('endGame', endGame);
-      }
+      await this.userModel.update(
+        { _id: player1._id },
+        {
+          cups: player1.cups,
+          totalMatch: player1.totalMatch,
+        },
+      );
+      await this.userModel.update(
+        { _id: player2._id },
+        {
+          cups: player2.cups,
+          totalMatch: player2.totalMatch,
+        },
+      );
     }
   }
 
   @SubscribeMessage('play')
   public async play(client: Socket, payload: any) {
-    console.log('ssssssssssss');
+    client.to(payload.roomId).emit('play', payload);
     const data = await this.gameModel
       .find({ roomId: payload.roomId })
       .sort({ _id: -1 })
@@ -201,7 +236,6 @@ export class RoomSocketGateway
       index: payload.index,
     });
     await game.save();
-    client.to(payload.roomId).emit('play', payload);
   }
 
   public afterInit(server: Server): void {
