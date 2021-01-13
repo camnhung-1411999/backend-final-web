@@ -23,10 +23,6 @@ export class HistoryController {
         return this.appService.findByUsername(user);
     }
 
-    @Get('/result/:id')
-    findSingByRoomID(@Param('id') _id: string) {
-        return this.appService.findSingByID(_id);
-    }
 
     @Get('/find/:id')
     findSingByRoomID(@Param('id') _id: string) {

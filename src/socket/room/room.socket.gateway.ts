@@ -149,21 +149,18 @@ export class RoomSocketGateway
   }
 
   @SubscribeMessage('close')
-  public close(client: Socket, data: any): void {
-  }
+  public close(client: Socket, data: any): void {}
 
   @SubscribeMessage('drawRequest')
   public drawRequest(client: Socket, payload: any): void {
-    client
-      .to(payload.roomId)
-      .emit('drawRequest', {
-        user1: payload.user.user,
-        name: payload.user.name,
-        user2:
-          payload.user.user === payload.game.player1
-            ? payload.game.player2
-            : payload.game.player1,
-      });
+    client.to(payload.roomId).emit('drawRequest', {
+      user1: payload.user.user,
+      name: payload.user.name,
+      user2:
+        payload.user.user === payload.game.player1
+          ? payload.game.player2
+          : payload.game.player1,
+    });
   }
 
   @SubscribeMessage('draw')
@@ -395,7 +392,95 @@ export class RoomSocketGateway
       }
     }
   }
+  @SubscribeMessage('outRoom')
+  public async outRoom(client: Socket, payload: any) {
+    client.leave(payload.roomId);
+    if (
+      payload.user.user === payload.game.player1 ||
+      payload.user.user === payload.game.player2
+    ) {
+      const room = await this.roomModel.findOne({ idroom: payload.roomId });
+      if (payload.user.user === payload.game.player1) {
+        room.isPlay = false;
+        this.server.in(payload.roomId).emit('outRoom');
+      }
+      else{
+        room.player2 = null;
+        this.server.in(payload.roomId).emit('outRoom', room);
+      }
+      await room.save();
 
+      const playerWin = await this.userModel.findOne({
+        user:
+          payload.user.user === payload.game.player1
+            ? payload.game.player2
+            : payload.game.player1,
+      });
+
+      if (playerWin) {
+
+        const data = await this.gameModel
+          .find({ roomId: payload.roomId })
+          .sort({ _id: -1 })
+          .limit(1);
+        const game = data[0];
+        if (game.playing) {
+          game.playing = false;
+          const endGame = {
+            winner: playerWin.user,
+            loser: payload.user.user,
+            winnerName: playerWin.name,
+            admin: payload.game.player1,
+          };
+  
+          // this.server.in(payload.roomId).emit('endGame', endGame);
+
+          await game.save();
+          const createdDate = moment(Date.now()).format('DD-MM-YYYY HH:mm:ss');
+          const history = new this.historyModel({
+            roomId: payload.roomId,
+            winner: playerWin.user,
+            result: game.board,
+            loser: payload.user.user,
+            datetime: createdDate,
+            draw: false,
+          });
+          await history.save();
+
+          const player1 = await this.userModel.findOne({
+            user: payload.user.user,
+          });
+
+          player1.totalMatch += 1;
+          playerWin.wins += 1;
+          playerWin.totalMatch += 1;
+
+          if (playerWin.cups > player1.cups) {
+            playerWin.cups += 5;
+            player1.cups -= 5;
+          } else {
+            playerWin.cups += 10;
+            player1.cups -= 10;
+          }
+
+          await this.userModel.update(
+            { _id: player1._id },
+            {
+              cups: player1.cups,
+              totalMatch: player1.totalMatch,
+            },
+          );
+          await this.userModel.update(
+            { _id: playerWin._id },
+            {
+              cups: playerWin.cups,
+              totalMatch: playerWin.totalMatch,
+            },
+          );
+        }
+      }
+    }
+  }
   public afterInit(server: Server): void {
     return this.logger.log('Init');
   }
