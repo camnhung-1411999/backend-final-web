@@ -9,7 +9,7 @@ COPY package.json /usr/src/backend-web/
 RUN curl -sL https://rpm.nodesource.com/setup_14.x | bash -
 RUN dnf install -y nodejs
 
-RUN npm install
+RUN npm install --force
 COPY . /usr/src/backend-web
 EXPOSE 8000
 CMD [ "npm","run", "dev"]

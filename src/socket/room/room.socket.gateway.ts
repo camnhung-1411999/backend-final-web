@@ -15,7 +15,7 @@ import { IGame, Game } from '../../models/game.model';
 import { Model } from 'mongoose';
 import { IRoom, Room } from '../../models/room.model';
 import { IUser, User } from '../../models/user.model';
-import { History, IHistory } from 'src/models/history.model';
+import { History, IHistory } from '../../models/history.model';
 import * as moment from 'moment';
 
 @WebSocketGateway()

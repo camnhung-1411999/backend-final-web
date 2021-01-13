@@ -4,7 +4,7 @@ import { Game, gameSchema } from '../../models/game.model';
 import { RoomSocketGateway } from './room.socket.gateway';
 import { Room, roomSchema } from '../../models/room.model';
 import { User, userSchema } from '../../models/user.model';
-import { History, historySchema } from 'src/models/history.model';
+import { History, historySchema } from '../../models/history.model';
 
 @Module({
   imports: [
