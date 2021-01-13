@@ -28,9 +28,10 @@ export class HistoryController {
         return this.appService.findSingByID(_id);
     }
 
-    @Post('/')
-    create(@Body() input: History): Promise<History>{
-        return this.appService.create(input);
+    @Get('/find/:id')
+    findSingByRoomID(@Param('id') _id: string) {
+        return this.appService.findByID(_id);
     }
+
 
 }

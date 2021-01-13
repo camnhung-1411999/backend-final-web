@@ -18,7 +18,7 @@ import { User, userSchema } from '../models/user.model';
             useFactory: () => {
               return userSchema;
             }
-          }
+          },
     ]),
 ],
 controllers: [HistoryController],

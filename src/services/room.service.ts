@@ -19,7 +19,7 @@ export class RoomService {
 
   async getRoom(id: string) {
     const room = await this.roomModel.findOne({
-      idroom:id, isPlay: true
+      idroom:id
     });
     if (!room) {
       throw new HttpException(
