@@ -14,14 +14,18 @@ export class HistoryController {
 
     @Get('/')
     @UseGuards(JwtAuthGuard)
-    myHistory(@Request() req) {
+    MyHistory(@Request() req) {
         return this.appService.findByUsername(req.user.user);
     }
 
-    @Get('/history/:user')
-    @UseGuards(JwtAuthGuard)
-    adminFindByUser(@Param('user') user: string) {
+    @Get('/detail/:user')
+    findByUser(@Param('user') user: string) {
         return this.appService.findByUsername(user);
+    }
+
+    @Get('/result/:id')
+    findSingByRoomID(@Param('id') _id: string) {
+        return this.appService.findSingByID(_id);
     }
 
     @Get('/find/:id')

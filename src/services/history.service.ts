@@ -20,6 +20,7 @@ export class HistoryService {
     }
 
 
+
     async findByUsername(input: string) {
         let username = input;
         const histories = await this.historyModel.find({ $or: [{ winner: username }, { loser: username }]});

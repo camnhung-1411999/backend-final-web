@@ -21,7 +21,7 @@ export class History {
 
     @Prop({type: String})
     @ApiProperty()
-    draw: string;
+    draw: boolean;
 
     @Prop({type: String, ref: User.name})
     @ApiProperty()
