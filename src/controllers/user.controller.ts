@@ -109,7 +109,7 @@ export class UserController {
     return this.appService
       .create (input)
       .then(async (data) => {
-        await this.appService.refreshToken(data.user).then((iuser) => {
+       return await this.appService.refreshToken(data.user).then((iuser) => {
           return iuser;
         });
       })
